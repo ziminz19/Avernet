@@ -18,6 +18,8 @@ BOTS_DYNAMIC_REQUIRED_PROFILE_FILES=(
     "KNOWLEDGE.md"
 )
 
+BOTS_DYNAMIC_PROFILE_SKILL_MARKER=".from-bot-profile"
+
 BOTS_DYNAMIC_OPTIONAL_PROFILE_FILES=(
     "SOUL.md"
     "USER.md"
@@ -716,6 +718,46 @@ bots_dynamic_setup_bcs_skill() {
     cp -R "$skill_source_dir" "${skills_dir}/" || return 1
 }
 
+# Skills shipped with a Bot profile live in <profile-dir>/<source>/skills/<name>/
+# and are installed next to bcs-coordination in the runtime workspace. Copies are
+# marked so a later refresh can drop skills that the profile no longer ships,
+# without touching skills the workspace obtained some other way.
+bots_dynamic_setup_profile_skills() {
+    local source="$1"
+    local workspace_dir="$2"
+    local skills_dir="${workspace_dir}/skills"
+    local source_skills_dir entry name
+
+    source_skills_dir="$(bots_dynamic_profile_dir)/${source}/skills"
+
+    if [ -d "$skills_dir" ]; then
+        for entry in "$skills_dir"/*; do
+            [ -d "$entry" ] || continue
+            [ -f "${entry}/${BOTS_DYNAMIC_PROFILE_SKILL_MARKER}" ] || continue
+            rm -rf "$entry"
+        done
+    fi
+
+    [ -d "$source_skills_dir" ] || return 0
+
+    mkdir -p "$skills_dir"
+    for entry in "$source_skills_dir"/*; do
+        [ -d "$entry" ] || continue
+        name="$(basename "$entry")"
+        if [ "$name" = "bcs-coordination" ]; then
+            log_error "Profile skill must not shadow bcs-coordination: ${entry}"
+            return 1
+        fi
+        if [ ! -f "${entry}/SKILL.md" ]; then
+            log_error "Profile skill is missing SKILL.md: ${entry}"
+            return 1
+        fi
+        rm -rf "${skills_dir:?}/${name}"
+        cp -R "$entry" "${skills_dir}/" || return 1
+        : > "${skills_dir}/${name}/${BOTS_DYNAMIC_PROFILE_SKILL_MARKER}" || return 1
+    done
+}
+
 bots_dynamic_write_openclaw_config() {
     local name="$1"
     local profile="$2"
@@ -887,6 +929,7 @@ bots_dynamic_setup_profile() {
     mkdir -p "$profile_dir" "$workspace_dir" "$LOG_DIR"
     bots_dynamic_copy_profile_files "$source" "$workspace_dir" || return 1
     bots_dynamic_setup_bcs_skill "$workspace_dir" || return 1
+    bots_dynamic_setup_profile_skills "$source" "$workspace_dir" || return 1
 
     local config_file="${profile_dir}/openclaw.json"
     if [ "${BCS_BOTS_PRESERVE_FILES:-1}" = "1" ] && [ -f "$config_file" ]; then
