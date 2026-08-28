@@ -75,19 +75,24 @@ uc render-vote-run --session S [--retry]
 ### `votes-set`
 
 ```bash
-uc votes-set --session S --json '{"1":"我投3号，...","2":"我弃权"}'
+uc votes-set --session S --json '{"1":"我投3号","2":"我弃权"}'
 ```
 
 只能在 `VOTE_RUNNING` 调。一次做完解析、计票、平票规则、出局、胜负判定。返回：
 
-- `votes[]`：`seat` / `player` / `text`（遮蔽后）/ `target_seat` / `target_player` / `violation` / `note`
+- `votes[]`：`seat` / `player` / `text`（**规范化后的票面**）/ `target_seat` / `target_player` / `violation` / `note`
 - `counts[]`：按票数降序的 `seat` / `player` / `votes`
 - `tie`、`forced_by_repeat_tie`、`eliminated`、`alive[]`
 - `verdict`：`continue` 或 `finished`；`winner`、`win_reason`
 - `ping`：继续时给出该派谁、派什么类型
 - phase 推到 `AWAIT_NEXT_ROUND` 或 `FINISHED`
 
-投票内容如果泄词，该票直接作废（`target_seat` 为 null）。
+`text` 一律是规范化的票面——`我投N号`、`我弃权` 或 `无效票`，**永远不是玩家的原话**。
+玩家这一轮只被要求交票号，但指令是软的：万一有谁多写了半句理由，这里也会被抹掉，
+所以主持稿里不可能出现投票理由。我拿不到原话，也不许去猜他们为什么这么投。
+
+投票内容如果泄词，该票直接作废（`target_seat` 为 null，`text` 是 `无效票`）。
+超字不作废，只在 `violation` 里记一笔。
 
 ### `render-ping`
 

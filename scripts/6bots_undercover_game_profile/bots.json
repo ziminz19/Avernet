@@ -41,7 +41,7 @@
       "source": "player-luoji",
       "profile": "undercover-player-luoji",
       "name": "玩家逻辑控林工",
-      "summary": "谁是卧底玩家，逻辑推理型选手，发言用属性和功能精确定位词语，投票时给出可复核的推理链。",
+      "summary": "谁是卧底玩家，逻辑推理型选手，发言用属性和条件描述词语但严格按轮次控制宽窄，投票时在心里走可复核的推理链、票面只交票号。",
       "domains": "undercover-game,social-deduction,party-game,word-description,deductive-play",
       "skills": "one-line-word-description,attribute-framing,deductive-voting,speech-reading"
     },

@@ -45,7 +45,9 @@ NEXT_ACTION = {
 }
 
 SPEECH_MAX_CHARS = 25
-VOTE_MAX_CHARS = 40
+# 投票只交票号：「我投4号」5 字、「我弃权」3 字。理由是泄露渠道——一条理由本质上
+# 是「拿我的词去比对他的话」的结果，念出来就等于广播自己那个词的一个属性。
+VOTE_MAX_CHARS = 10
 MASK = "○"
 
 # 节点超时与重试。
@@ -211,6 +213,62 @@ def public_history(state: dict[str, Any]) -> list[dict[str, Any]]:
 # 违规检查与遮蔽
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# 发言钝度
+# --------------------------------------------------------------------------
+
+# 泄词有两条路：字面上说出词（forbid_line 拦得住），和语义上把词描述到只对应一件
+# 东西（脚本拦不住）。第二条才是实战里致命的那条——第一轮就下定义，卧底当场暴露，
+# 一轮结束。
+#
+# 这里给的是一把玩家能自己算的尺子：把这句话念给局外人听，他能不能列出至少 N 样
+# 符合的东西。N 按轮次收敛，信息就按轮次释放。
+#
+# 为什么必须收敛：投票只看历史发言，发言要是一直很钝，投票就退化成随机；6 人 1 个
+# 卧底、每轮出局 1 个，第 4 轮结束只剩 2 人卧底就赢了，所以平民只有 4 轮时间，第 3
+# 轮起必须放到能真正推理的程度。
+BLUNTNESS_LADDER = {1: 5, 2: 3}
+BLUNTNESS_FLOOR = 2
+
+
+def bluntness_n(rnd: int) -> int:
+    return BLUNTNESS_LADDER.get(rnd, BLUNTNESS_FLOOR)
+
+
+def bluntness_block(rnd: int, first: bool) -> str:
+    """本轮的钝度要求，逐字写进每个发言节点的 instruction。"""
+    n = bluntness_n(rnd)
+    lines = [
+        f"【本轮钝度 = {n}】",
+        f"写完先自检：把这句话原样念给一个没参加游戏的人，他能列出至少 {n} 样符合的东西吗？"
+        f"列不出来就是太具体了，重写得更钝。",
+    ]
+    if rnd == 1:
+        lines.append(
+            "第一轮只从这四类里挑一类说：什么时候会想到它 / 多久遇到一次 / "
+            "用完是什么感觉 / 一般放在哪儿。"
+        )
+        lines.append(
+            "不要说它是干什么用的、什么形状、什么材质、用在身体哪个部位。"
+            "一句话里「动作」和「对象」同时出现就是在下定义，本轮不许下定义。"
+        )
+    elif rnd == 2:
+        lines.append(
+            "这一轮可以加一个属性——形状、材质、使用场合，三选一，只挑一个。"
+            "仍然不要把用途和对象放在同一句里。"
+        )
+    else:
+        lines.append("这一轮可以说用途了，但整句仍然不能等价于这个词的定义。")
+    if first:
+        lines.append("你是本轮第一个发言的人，没有参照，本轮的钝度由你定——宁可更钝。")
+    else:
+        lines.append(
+            "先看前面的人到了什么钝度，你不能比他们更锐利。"
+            "换个角度可以，但要换成同样钝的角度，不要去补一个只有你的词才成立的角度。"
+        )
+    return "\n".join(lines)
+
+
 def bigrams(word: str) -> list[str]:
     """词里全部连续两字片段；两字词返回它自己，一字词返回空。"""
     return [word[i : i + 2] for i in range(len(word) - 1)]
@@ -354,13 +412,15 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         nid = node_ids[idx]
         targets = node_ids[idx + 1 :] + ["collect"]
         targets_yaml = "[" + ", ".join(targets) + "]"
+        first = idx == 0
         if s["kind"] == "human":
             instruction = (
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮 · 你是 {s['seat']} 号 · 轮到你发言了。\n"
                 f"上方「上游产物」里是本轮在你之前玩家的原话，历史轮次在本次运行的输入里。\n\n"
                 f"请写一句话（不超过 {SPEECH_MAX_CHARS} 个字）描述你的词语。\n"
-                f"{forbid_line(s['word'])}\n"
+                f"{forbid_line(s['word'])}\n\n"
+                f"{bluntness_block(rnd, first)}\n\n"
                 "不要提身份、不要点评别人，只描述你的词。"
             )
             nodes.append(
@@ -379,7 +439,8 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"现在是第 {rnd} 轮发言。[Upstream Outputs] 里是本轮在你之前已经发言的玩家原话，"
                 "历史轮次的发言在 [Input] 里。\n"
                 f"请只输出一句话，不超过 {SPEECH_MAX_CHARS} 个字，描述你的词语。\n"
-                f"{forbid_line(s['word'])}\n"
+                f"{forbid_line(s['word'])}\n\n"
+                f"{bluntness_block(rnd, first)}\n\n"
                 "不要提身份、轮次、规则或票数，也不要点评其他玩家。\n"
                 "只输出这一句话本身，不要编号、不要引号、不要 JSON、不要任何解释。"
             )
@@ -500,11 +561,12 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             instruction = (
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮投票 · 你是 {s['seat']} 号。\n"
-                f"本轮及历史全部发言在本次运行的输入里，主持人也已经在群里念过一遍。\n\n"
+                f"所有人历史全部发言在本次运行的输入里，主持人也已经在群里念过一遍。"
+                "这些发言是唯一的判断依据。\n\n"
                 f"可以投的人：{others}。不能投自己。\n"
-                "请以「我投N号」开头写一句话，后面用一句话说说为什么，"
-                "并且引用你要投的那个人说过的一句原话。\n"
-                "不想投就写「我弃权」加一句原因。"
+                "只写「我投N号」，N 是阿拉伯数字，不要写理由。\n"
+                "这一轮所有人都只交票号——理由会暴露自己那个词，所以谁都不写。\n"
+                "不想投就写「我弃权」。"
             )
             nodes.append(
                 f"      {nid}:\n"
@@ -520,14 +582,16 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             instruction = (
                 f"你是本局的 {s['seat']} 号玩家。你的词语是【{s['word']}】。\n"
                 f"现在是第 {rnd} 轮投票。全场玩家是：{seat_list}。\n"
-                f"本轮及历史全部发言在 [Input] 里，逐字可查。\n"
-                f"可以投的人：{others}。不能投自己。\n"
-                "输出格式：以「我投N号」开头的一句话，后面接一句你自己口吻的理由，"
-                "理由里必须引用你要投的那个人说过的一句原话。整句不超过 "
+                f"[Input] 里是所有人**全部历史轮次**的发言原话，逐字可查——"
+                "这是你唯一的判断依据。\n"
+                f"可以投的人：{others}。不能投自己。\n\n"
+                "在心里想清楚投谁，但**只输出票号本身**：「我投N号」，N 是阿拉伯数字。\n"
+                "不写理由、不引用别人的话、不解释、不加任何前缀。整条不超过 "
                 f"{VOTE_MAX_CHARS} 个字。\n"
-                f"{forbid_line(s['word'])}\n"
-                "不要提「卧底」「平民」「身份」，不要输出编号列表、JSON 或解释。\n"
-                "确实无法判断时，写「我弃权」加一句原因。"
+                "理由是泄露渠道：说「跟我理解的不一样」就等于把自己那个词的一个属性"
+                "广播给全场。所以这一轮谁都不写理由。\n"
+                "确实无法判断时，只输出「我弃权」。\n"
+                f"任何情况下都不得在输出里出现「{s['word']}」或它的任何一部分。"
             )
             # 入口节点那位刚在同一条通道上跑完 vote_open，投票节点会在它结束的
             # 瞬间派回来，是全场唯一一个可能撞上通道未释放的玩家节点。
@@ -552,10 +616,12 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
 
     tally_instruction = (
         "【裁判节点 · 计票】\n"
-        "[Upstream Outputs] 里是本轮全部玩家的投票原话。\n"
+        "[Upstream Outputs] 里是本轮全部玩家的投票，每条只有票号，没有理由。\n"
         "1. 把每个座位的原话整理成 JSON，调 undercover.py votes-set 交给事实层计票。\n"
-        "2. 用它返回的结果写开票主持稿：逐条念票（引用原话）、报票数、宣布出局者、"
+        "2. 用它返回的结果写开票主持稿：逐条报谁投了谁、报票数、宣布出局者、"
         "说明身份暂不公布、报剩下几个人。判定一律以事实层返回为准，不要自己数票。\n"
+        "   **玩家没有给理由，你也不许替他们编、不许猜他们为什么这么投。**"
+        "这一段的戏在票型上——谁压谁、谁是孤票、谁被围了。\n"
         "3. 如果事实层说本局结束，就在这里公布完整真相（先调 reveal）。\n"
         "只输出给玩家看的主持稿，不要输出任何未出局玩家的词语或身份、内部状态、节点名或运行 ID。"
     )
@@ -794,7 +860,10 @@ def cmd_render_speak_run(args: argparse.Namespace) -> None:
             "round": state["round"],
             "alive": [f"{s['seat']}号 {s['display']}" for s in living],
             "history": public_history(state),
-            "rule": f"用一句话（不超过{SPEECH_MAX_CHARS}字）描述你的词语，不得说出词本身，也不得拆开说",
+            "rule": (
+                f"用一句话（不超过{SPEECH_MAX_CHARS}字）描述你的词语，不得说出词本身，也不得拆开说；"
+                f"本轮的描述要钝到至少还能套在 {bluntness_n(state['round'])} 样别的东西上"
+            ),
         }
         yaml_path, input_path = write_run_files(
             args.session, run_file_kind("speak", state["round"], attempt), yaml_text, run_input
@@ -886,7 +955,7 @@ def cmd_render_vote_run(args: argparse.Namespace) -> None:
             "phase": "投票",
             "alive": [f"{s['seat']}号 {s['display']}" for s in living],
             "history": public_history(state),
-            "rule": "根据全部发言投出你认为词语和大家不一样的人，不能投自己",
+            "rule": "只根据所有人历史全部发言，投出你认为词语和大家不一样的人；不能投自己；只交票号，不写理由",
         }
         yaml_path, input_path = write_run_files(
             args.session, run_file_kind("vote", state["round"], attempt), yaml_text, run_input
@@ -942,10 +1011,22 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
         counts: dict[int, int] = {}
         for seat in rnd["order"]:
             raw = str(payload[str(seat)] if str(seat) in payload else payload[seat]).strip()
-            display, reason = check_text(state, seat, raw, VOTE_MAX_CHARS)
+            _masked, reason = check_text(state, seat, raw, VOTE_MAX_CHARS)
             target, note = parse_vote(state, seat, raw)
             if reason and reason != f"超过 {VOTE_MAX_CHARS} 字":
                 target, note = None, "投票内容违规，本票作废"
+            # 票面一律规范化成票号，玩家写了什么原话都不往外传。
+            #
+            # 投票理由是泄露渠道——一条理由就是「拿我的词比对他的话」的结果，念出来
+            # 等于广播自己那个词的属性。节点指令里已经要求只交票号，但指令是软的：
+            # 只要有一个玩家多写了半句，主持稿就会把它念出去。所以在这里把渠道彻底
+            # 关死——主持人拿不到原话，也就没得念、没得猜。
+            if target is not None:
+                display = f"我投{target}号"
+            elif note == "弃权":
+                display = "我弃权"
+            else:
+                display = "无效票"
             rnd["votes"][str(seat)] = {
                 "raw": raw,
                 "display": display,
@@ -1035,7 +1116,8 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
             "win_reason": reason,
             "ping": ping,
             "next_action": NEXT_ACTION[state["phase"]],
-            "note": "只使用 text 字段念稿。出局者身份不要公布，除非 verdict 是 finished。",
+            "note": "只使用 text 字段念稿——它已经规范化成票号，玩家的原话不会给你。"
+            "不要替玩家编造或猜测投票理由。出局者身份不要公布，除非 verdict 是 finished。",
         }
     )
 

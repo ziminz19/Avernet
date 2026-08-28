@@ -117,6 +117,12 @@ if kind == "speak"
   abort "speak final must be collect" unless final == "collect"
   abort "speak run may only assign the referee to collect, got #{referee_nodes.inspect}" unless
     referee_nodes == ["collect"]
+  # 泄词有字面和语义两条路。forbid_line 管字面，钝度段管语义——第一轮就把词描述到
+  # 只对应一件东西，卧底当场暴露，整局一轮就结束。每个发言节点都必须带上本轮钝度。
+  order.each do |nid|
+    abort "speaker #{nid} is missing the bluntness block" unless
+      nodes[nid]["instruction"].to_s.include?("本轮钝度")
+  end
   order.each_with_index do |nid, i|
     got = nodes[nid].dig("transitions", "complete", "targets")
     want = order[(i + 1)..] + ["collect"]
@@ -129,6 +135,15 @@ else
   abort "vote final must be tally" unless final == "tally"
   abort "vote run may only assign the referee to tally, got #{referee_nodes.inspect}" unless
     referee_nodes == ["tally"]
+  # 投票只交票号。一条理由就是「拿我的词比对他的话」的结果，念出来等于广播自己那个
+  # 词的属性——第一轮结束全场信息就透明了。
+  voters.each do |nid|
+    text = nodes[nid]["instruction"].to_s
+    abort "voter #{nid} must ask for a bare ballot" unless
+      text.match?(/只输出票号|只写「我投N号」/)
+    abort "voter #{nid} must not ask for a reason or a quote" if
+      text.match?(/接一句|理由里必须|引用.{0,8}原话/)
+  end
   got = nodes["vote_open"].dig("transitions", "complete", "targets")
   abort "vote_open must fan out to every voter: #{got.inspect} != #{voters.inspect}" unless got == voters
   voters.each do |nid|
