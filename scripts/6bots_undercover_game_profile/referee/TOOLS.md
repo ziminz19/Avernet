@@ -12,13 +12,22 @@ SKILL_DIR="${OPENCLAW_WORKSPACE_DIR:-$PWD}/skills/undercover-game-referee"
 uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 ```
 
-`init` 开局、`status` 看阶段、`render-speak-run` / `render-vote-run` 渲染协作、`speeches-set` / `votes-set` 收产物并判定、`render-ping` 渲染遗言任务、`reveal` 终局公布。详见 `references/commands.md`。
+日常只用这几条：`begin` 开局探测、`init` 发牌、`status` 看阶段、**`open-round` 开一轮发言**、
+**`open-vote` 开投**、`speeches-set` / `votes-set` 收产物并判定、`render-ping` 渲染遗言任务、
+`reveal` 终局公布。`render-speak-run` / `render-vote-run` 是拆开的底层命令，只在 `open-*`
+跑不通时手工用。详见 `references/commands.md`。
+
+`open-round` / `open-vote` / `begin` 会自己调 `bcs-cli`（认证仍由 CLI 负责，脚本不碰 token）。
+把几步合成一条不是为了省事：我的每一次工具调用都会被转发成群事件，来回越多人类看到的
+无关内容越多；而且入口节点是我自己的，提交之后每多一个来回，本轮开场就晚一个来回。
 
 第一次使用前确认 `python3 --version` 可用；不可用就直接告诉人类，不要退化成手工主持。
 
 ## 协同工具
 
-- `bcs_assign_task(target_bot, message)`：派遗言或预备任务。目标用 Bot 名称。
+- `bcs_assign_task(target_bot, message)`：派遗言、预备或看门狗任务。目标用 Bot 名称。
+  **派任务只有这一个办法。** 不要去查 `bcs --help` 找别的路子，也不要退回用 `bcs chat`
+  ——那是一对一会话，会脱离本局，回执也不是任务回执。这个工具在节点激活里同样可用。
 - `bcs_task_complete(summary)`：**只在整局结束时调用一次**，它会结束当前 session。中途绝不调用。
 - 具体调用面（`mcporter call`、原生 MCP 还是原生 tool）以 BCS 注入的本群协同上下文为准。
 

@@ -21,6 +21,7 @@ abort "no nodes" if nodes.nil? || nodes.empty?
 # 先判死，节点产物随后到达变成孤儿。重试对这类故障无效，只会让同一节点排两份。
 BOT_NODE_TIMEOUT_MS = 420_000
 CONTENDED_NODE_TIMEOUT_MS = 600_000
+ENTRY_NODE_TIMEOUT_MS = 900_000
 defaults = sm["defaults"] || {}
 abort "defaults.max_attempts must be 1, got #{defaults['max_attempts'].inspect}" unless
   defaults["max_attempts"] == 1
@@ -89,18 +90,23 @@ nodes.each do |nid, n|
   abort "#{nid}: assignee.binding missing" if n.dig("assignee", "binding").to_s.empty?
 end
 
-# 裁判是在自己的一次激活里同步提交运行的，所以运行一开跑就派给裁判的节点会排在
-# 那次激活后面等自己让路。入口节点绝不能是裁判；裁判只能出现在汇合节点上，那时
-# 它的通道早就空了。
+# 流程推进只由主持人做，所以两个运行的入口节点都是裁判的 bot_task，产物就是那一轮
+# 的开场稿。代价是裁判在自己的一次激活里同步提交运行，入口节点会排在那次激活后面
+# 等自己让路——所以入口节点的超时必须给到 15 分钟（实测通道最长泄漏过 6 分钟）。
 referee_nodes = nodes.select { |_, n| n.dig("assignee", "binding") == "referee" }.keys.sort
-abort "entry node #{entries[0]} must not be assigned to the referee" if
-  nodes[entries[0]].dig("assignee", "binding") == "referee"
+entry = entries[0]
+abort "entry node #{entry} must be assigned to the referee" unless
+  nodes[entry].dig("assignee", "binding") == "referee"
+abort "entry node #{entry} needs node_timeout_ms >= #{ENTRY_NODE_TIMEOUT_MS}" unless
+  nodes[entry]["node_timeout_ms"].is_a?(Integer) && nodes[entry]["node_timeout_ms"] >= ENTRY_NODE_TIMEOUT_MS
 
 nodes.each do |nid, n|
   next unless n["kind"] == "bot_task"
   abort "#{nid}: must not raise max_attempts above 1" if n.key?("max_attempts") && n["max_attempts"] != 1
   effective = n["node_timeout_ms"] || defaults["node_timeout_ms"]
-  want = n.dig("assignee", "binding") == "referee" ? CONTENDED_NODE_TIMEOUT_MS : BOT_NODE_TIMEOUT_MS
+  want = if nid == entry then ENTRY_NODE_TIMEOUT_MS
+         elsif n.dig("assignee", "binding") == "referee" then CONTENDED_NODE_TIMEOUT_MS
+         else BOT_NODE_TIMEOUT_MS end
   abort "#{nid}: node_timeout_ms #{effective} < #{want}" unless effective.is_a?(Integer) && effective >= want
 end
 parts = d["participants"].keys.sort
@@ -111,12 +117,16 @@ d["participants"].each do |name, p|
 end
 
 if kind == "speak"
-  order = nodes.keys.grep(/\Aspeak_/).sort_by { |k| k.split("_").last.to_i }
+  order = nodes.keys.grep(/\Aspeak_\d+\z/).sort_by { |k| k.split("_").last.to_i }
   abort "speak run has no speaker nodes" if order.empty?
-  abort "speak entry must be the first speaker" unless entries[0] == order[0]
+  abort "speak entry must be speak_open" unless entry == "speak_open"
   abort "speak final must be collect" unless final == "collect"
-  abort "speak run may only assign the referee to collect, got #{referee_nodes.inspect}" unless
-    referee_nodes == ["collect"]
+  abort "speak run may only assign the referee to speak_open and collect, got #{referee_nodes.inspect}" unless
+    referee_nodes == %w[collect speak_open]
+  got = nodes["speak_open"].dig("transitions", "complete", "targets")
+  abort "speak_open must fan out to every speaker: #{got.inspect} != #{order.inspect}" unless got == order
+  abort "speak_open must not carry a bluntness block" if
+    nodes["speak_open"]["instruction"].to_s.include?("本轮钝度")
   # 泄词有字面和语义两条路。forbid_line 管字面，钝度段管语义——第一轮就把词描述到
   # 只对应一件东西，卧底当场暴露，整局一轮就结束。每个发言节点都必须带上本轮钝度。
   order.each do |nid|
@@ -131,10 +141,10 @@ if kind == "speak"
 else
   voters = nodes.keys.grep(/\Avote_\d+\z/).sort_by { |k| k.split("_").last.to_i }
   abort "vote run has no voter nodes" if voters.empty?
-  abort "vote entry must be vote_open" unless entries[0] == "vote_open"
+  abort "vote entry must be vote_open" unless entry == "vote_open"
   abort "vote final must be tally" unless final == "tally"
-  abort "vote run may only assign the referee to tally, got #{referee_nodes.inspect}" unless
-    referee_nodes == ["tally"]
+  abort "vote run may only assign the referee to vote_open and tally, got #{referee_nodes.inspect}" unless
+    referee_nodes == %w[tally vote_open]
   # 投票只交票号。一条理由就是「拿我的词比对他的话」的结果，念出来等于广播自己那个
   # 词的属性——第一轮结束全场信息就透明了。
   voters.each do |nid|

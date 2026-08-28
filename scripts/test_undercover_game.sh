@@ -24,6 +24,13 @@ print(json.dumps(s,ensure_ascii=False))
 
 jqp() { python3 -c "import json,sys; d=json.load(sys.stdin); print(eval(sys.argv[1],{'d':d}))" "$1"; }
 
+# 本轮的发言座位顺序直接从渲染出来的 YAML 里读。render 的返回不再带 speaking_order
+# ——裁判的命令输出会被转发成群事件，所以那些只有测试用得上的字段都收掉了。
+speaker_seats() { python3 -c "
+import re,sys
+print([int(m) for m in re.findall(r'^      speak_(\\d+):', open(sys.argv[1],encoding='utf-8').read(), re.M)])
+" "$1"; }
+
 new_game() {
     local tag="$1"; shift
     export BOT_DATA_DIR="${TMP}/${tag}"
@@ -72,7 +79,7 @@ if command -v ruby >/dev/null 2>&1; then
     RUBYOPT="-EUTF-8" ruby -ryaml "$CHECK" "$yaml" speak || fail "发言协作 YAML 不满足契约"
     grep -q "$civ" "${TMP}/speak.json" && fail "render-speak-run 的 stdout 不应该出现词"
     grep -q "$civ" "$yaml" || fail "发言 YAML 里应该注入词语"
-    order="$(python3 -c "import json;print([s['seat'] for s in json.load(open('${TMP}/speak.json'))['speaking_order']])")"
+    order="$(speaker_seats "$yaml")"
     [ "$order" = "[1, 2, 3, 4, 5, 6]" ] || fail "首轮发言顺序应该是全部六个座位，得到 ${order}"
 else
     echo "  SKIP: 没有 ruby，跳过 YAML 契约校验"
@@ -94,19 +101,20 @@ import json,sys
 t=int(sys.argv[1])
 print(json.dumps({str(s):('我投%d号，理由随便'%(t if s!=t else (1 if t!=1 else 2))) for s in range(1,7)},ensure_ascii=False))" "$civ2")" >/dev/null
 uc render-speak-run --session "$SESSION" > "${TMP}/speak2.json"
+yaml2="$(python3 -c "import json;print(json.load(open('${TMP}/speak2.json'))['yaml_path'])")"
 python3 -c "
-import json
+import json,re
 d=json.load(open('${TMP}/speak2.json'))
+seats=[int(m) for m in re.findall(r'^      speak_(\d+):', open('${yaml2}',encoding='utf-8').read(), re.M)]
 assert d['round']==2, d
-assert len(d['speaking_order'])==5, d
-assert $civ2 not in [s['seat'] for s in d['speaking_order']], d
+assert len(seats)==5, seats
+assert $civ2 not in seats, seats
 " || fail "第二轮不应该再包含出局玩家"
 if command -v ruby >/dev/null 2>&1; then
-    yaml2="$(python3 -c "import json;print(json.load(open('${TMP}/speak2.json'))['yaml_path'])")"
     RUBYOPT="-EUTF-8" ruby -ryaml "$CHECK" "$yaml2" speak || fail "第二轮发言协作 YAML 不满足契约"
     uc speeches-set --session "$SESSION" --json "$(python3 -c "
-import json,sys
-alive=[s['seat'] for s in json.load(open('${TMP}/speak2.json'))['speaking_order']]
+import json,re
+alive=[int(m) for m in re.findall(r'^      speak_(\d+):', open('${yaml2}',encoding='utf-8').read(), re.M)]
 print(json.dumps({str(s):'第二轮的一句描述' for s in alive},ensure_ascii=False))")" >/dev/null
     uc render-vote-run --session "$SESSION" > "${TMP}/vrun2.json"
     vyaml2="$(python3 -c "import json;print(json.load(open('${TMP}/vrun2.json'))['yaml_path'])")"
@@ -242,7 +250,7 @@ uc votes-set --session "$SESSION" --json '{}' >/dev/null 2>&1 && fail "错阶段
 uc render-vote-run --session "$SESSION" >/dev/null 2>&1 && fail "错阶段调 render-vote-run 应该失败" || ok "错阶段渲染被拒"
 
 # --------------------------------------------------------------------------
-echo "== 平票：首次无人出局，连续平票强制出局"
+echo "== 平票：无人出局、直接进下一轮，连着平也不随机挑人"
 new_game tie "${FIVE_BOTS[@]}" --seed 17 >/dev/null
 state="$(peek "$SESSION")"
 spy="$(printf '%s' "$state" | jqp "[s['seat'] for s in d['seats'] if s['role']=='undercover'][0]")"
@@ -269,10 +277,10 @@ import json
 d=json.load(open('${TMP}/tie1.json'))
 assert d['tie'] is True, d
 assert d['eliminated'] is None, d
-assert d['forced_by_repeat_tie'] is False
+assert 'forced_by_repeat_tie' not in d, d
 assert d['phase']=='AWAIT_NEXT_ROUND'
 assert d['ping'] and d['ping']['kind']=='standby', d
-" || fail "首次平票应该无人出局并派预备任务"
+" || fail "平票应该无人出局并派预备任务"
 uc render-ping --session "$SESSION" > "${TMP}/ping1.json"
 python3 -c "
 import json
@@ -289,10 +297,57 @@ python3 -c "
 import json
 d=json.load(open('${TMP}/tie2.json'))
 assert d['tie'] is True, d
-assert d['forced_by_repeat_tie'] is True, d
-assert d['eliminated'] is not None and d['eliminated']['seat'] in (1,2), d
-" || fail "连续平票应该在平票者中强制出局"
-ok "平票与连续平票规则正确"
+# 平票永远不出局：连着平第二次也不在平票者里随机挑人。平票不减员但照样烧掉一轮，
+# 轮数用完判卧底胜，所以平票的代价由轮数承担，不由随机承担。
+assert d['eliminated'] is None, d
+assert d['phase']=='AWAIT_NEXT_ROUND', d
+" || fail "连续平票也不应该有人出局"
+ok "平票规则正确：无人出局、不重投、不随机挑人"
+
+# --------------------------------------------------------------------------
+echo "== 平票照样烧掉一轮"
+python3 -c "
+import json
+a=json.load(open('${TMP}/tie1.json')); b=json.load(open('${TMP}/tie2.json'))
+assert a['round']==1 and b['round']==2, (a['round'], b['round'])
+assert len(a['alive'])==6 and len(b['alive'])==6, (a['alive'], b['alive'])
+" || fail "平票不减员，但轮次必须照常推进"
+ok "平票不减员，轮次照常推进"
+
+# --------------------------------------------------------------------------
+echo "== status 默认精简、--full 才给细节"
+new_game brief "${FIVE_BOTS[@]}" --seed 23 >/dev/null
+uc status --session "$SESSION" > "${TMP}/brief.json"
+uc status --session "$SESSION" --full > "${TMP}/full.json"
+[ "$(wc -l < "${TMP}/brief.json")" -eq 1 ] || fail "status 默认应该是一行"
+python3 -c "
+import json
+b=json.load(open('${TMP}/brief.json')); f=json.load(open('${TMP}/full.json'))
+# 精简版必须保留 S4b 的判据：phase + pending_ping
+assert set(b)=={'ok','phase','round','alive','pending_ping','next_action'}, sorted(b)
+for k in ('eliminated','human_seat','renders','result'):
+    assert k not in b and k in f, k
+" || fail "status 的精简/详细两档字段不对"
+ok "status 默认精简，--full 才给细节"
+
+# --------------------------------------------------------------------------
+echo "== 裁判自己的 bot_uuid 由脚本解析"
+export BOT_DATA_DIR="${TMP}/uuid"; rm -rf "$BOT_DATA_DIR"; mkdir -p "$BOT_DATA_DIR"
+uc init --session "u:1" --group u --human human_9 "${THREE_BOTS[@]}" > "${TMP}/nouuid.json" 2>&1 &&     fail "既没有 BCN_BOT_UUID 也没有 session.json 时应该报错"
+python3 -c "
+import json
+d=json.load(open('${TMP}/nouuid.json'))
+assert d['ok'] is False and d['error']=='NO_REFEREE_UUID', d
+" || fail "解析不出 bot_uuid 时应该给 NO_REFEREE_UUID"
+mkdir -p "${BOT_DATA_DIR}/.bcs"
+printf '{"bot_uuid":"谁是卧底主持人","token":"x"}' > "${BOT_DATA_DIR}/.bcs/session.json"
+uc init --session "u:1" --group u --human human_9 "${THREE_BOTS[@]}" > "${TMP}/okuuid.json"
+python3 -c "
+import json
+d=json.load(open('${TMP}/okuuid.json'))
+assert d['referee_uuid']=='谁是卧底主持人', d
+" || fail "应该从 .bcs/session.json 读出 bot_uuid"
+ok "不给 --referee-uuid 时脚本自己解析，解析不出就明确报错"
 
 # --------------------------------------------------------------------------
 echo "== 只剩两人时卧底胜"

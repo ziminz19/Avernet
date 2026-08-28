@@ -9,6 +9,11 @@
      这样即使把命令输出原样贴进群聊也不会泄密。
   2. render-speak-run / render-vote-run 把含词的 YAML 写进文件、只打印路径，
      词一次都不经过模型的输出通道。
+
+begin / open-round / open-vote 会自己调 bcs-cli（认证仍由 CLI 负责，本脚本不碰
+token）。把探测、渲染、提交合成一条命令不是为了省事：裁判的每一次工具调用和它的
+输出都会被转发成群里的事件，来回越多、人类看到的无关文字越多；而且入口节点是裁判
+自己的，提交之后每多一个来回，开场就晚一个来回。
 """
 
 from __future__ import annotations
@@ -18,13 +23,15 @@ import json
 import os
 import random
 import re
+import shlex
+import subprocess
 import sys
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-STATE_VERSION = 3
+STATE_VERSION = 4
 
 PHASES = (
     "AWAIT_START",
@@ -62,8 +69,13 @@ MASK = "○"
 # 侧自己重试。
 BOT_NODE_TIMEOUT_MS = 420_000
 # 裁判的通道最挤：人类的自由聊天、节点任务、以及它自己 final_output 的回灌都走
-# 这一条，所以派给裁判的节点额外放宽。入口节点撞车时被牵连的那个投票节点同理。
+# 这一条，所以派给裁判的节点额外放宽。
 CONTENDED_NODE_TIMEOUT_MS = 600_000
+# 入口节点是裁判自己的（整局的流程推进只能由主持人做），而运行是在裁判的一次激活
+# 里同步提交的：入口节点在提交那一刻就派出去，排在提交它的那次激活后面等自己让路。
+# 实测正常交接 3–5 秒；最坏的一次是 Bot 通道在激活结束后泄漏了 6 分钟。15 分钟把
+# 两种情况都盖住，也留出裁判自己那条通道被人类插话占用的余量。
+ENTRY_NODE_TIMEOUT_MS = 900_000
 HUMAN_NODE_TIMEOUT_MS = 900_000
 NODE_MAX_ATTEMPTS = 1
 
@@ -152,9 +164,14 @@ def die(code: str, message: str) -> None:
     sys.exit(2)
 
 
-def emit(payload: dict[str, Any]) -> None:
+def emit(payload: dict[str, Any], compact: bool = False) -> None:
+    """命令输出也是公开的。
+
+    Bot 的每一次工具调用和它的输出都会被转发成群里的事件，所以一条 40 行的状态
+    JSON 和一段废话一样占屏。默认输出因此尽量短，详细版只在明确要的时候给。
+    """
     payload = {"ok": True, **payload}
-    json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)
+    json.dump(payload, sys.stdout, ensure_ascii=False, indent=None if compact else 2)
     sys.stdout.write("\n")
 
 
@@ -407,7 +424,42 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             )
     participants.append('  referee:\n    display_name: "主持人"\n    required: true')
 
-    nodes: list[str] = []
+    seat_roster = "、".join(f"{s['seat']}号 {s['display']}" for s in living)
+    lead = living[0]
+
+    # 入口节点归主持人。整局的流程推进只由主持人做——玩家 Bot 不当任何一个运行的
+    # 门房。它的产物就是本轮的开场稿：提交完运行裁判不必再说话，人类在群里看到的
+    # 第一句是「第 N 轮开始」，而不是裁判把活干完之后的收尾。
+    #
+    # 这段话会作为 [Upstream Outputs] 流给每一个发言节点，所以只准写全场都已经知道
+    # 的东西：第几轮、还剩哪几号、谁先说。
+    open_instruction = (
+        "【主持人节点 · 回合开场】\n"
+        f"第 {rnd} 轮开始。这是本轮发言运行的入口，你在这里只说一句开场，"
+        "不要调用任何脚本、不要做任何判断。\n"
+        f"场上还剩：{seat_roster}。第一个发言的是 {lead['seat']}号 {lead['display']}。\n"
+        "说清三件事：第几轮 / 还剩谁 / 谁先说。不超过 3 句话。\n"
+        + (
+            "第一轮可以再带一句副屏提示（发言框在右边副屏、词写在框最上面），之后不再提。\n"
+            if rnd == 1
+            else ""
+        )
+        + "这段话会原样转给每一位玩家，所以只能包含上面这些公开信息。\n"
+        "不要提任何人的词、身份、发言倾向或谁可疑，也不要出现阶段编号、节点名或运行 ID。"
+    )
+    nodes: list[str] = [
+        "      speak_open:\n"
+        "        kind: bot_task\n"
+        '        display_name: "回合开场"\n'
+        "        assignee:\n"
+        "          type: bot_binding\n"
+        "          binding: referee\n"
+        f"        node_timeout_ms: {ENTRY_NODE_TIMEOUT_MS}\n"
+        f"        instruction: |\n{block(open_instruction, 10)}\n"
+        "        transitions:\n"
+        "          complete:\n"
+        "            targets: [" + ", ".join(node_ids) + "]"
+    ]
     for idx, s in enumerate(living):
         nid = node_ids[idx]
         targets = node_ids[idx + 1 :] + ["collect"]
@@ -417,7 +469,8 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             instruction = (
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮 · 你是 {s['seat']} 号 · 轮到你发言了。\n"
-                f"上方「上游产物」里是本轮在你之前玩家的原话，历史轮次在本次运行的输入里。\n\n"
+                f"上方「上游产物」里第一条是主持人的开场，其余是本轮在你之前玩家的原话；"
+                "历史轮次在本次运行的输入里。\n\n"
                 f"请写一句话（不超过 {SPEECH_MAX_CHARS} 个字）描述你的词语。\n"
                 f"{forbid_line(s['word'])}\n\n"
                 f"{bluntness_block(rnd, first)}\n\n"
@@ -436,8 +489,8 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         else:
             instruction = (
                 f"你是本局的 {s['seat']} 号玩家。你的词语是【{s['word']}】。\n"
-                f"现在是第 {rnd} 轮发言。[Upstream Outputs] 里是本轮在你之前已经发言的玩家原话，"
-                "历史轮次的发言在 [Input] 里。\n"
+                f"现在是第 {rnd} 轮发言。[Upstream Outputs] 里第一条是主持人的开场，"
+                "其余是本轮在你之前已经发言的玩家原话；历史轮次的发言在 [Input] 里。\n"
                 f"请只输出一句话，不超过 {SPEECH_MAX_CHARS} 个字，描述你的词语。\n"
                 f"{forbid_line(s['word'])}\n\n"
                 f"{bluntness_block(rnd, first)}\n\n"
@@ -497,31 +550,11 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
     return yaml_text, bindings
 
 
-def vote_gate_seat(living: list[dict[str, Any]]) -> dict[str, Any]:
-    """挑一个 Bot 来当投票运行的零入度入口节点。
-
-    绝对不能是裁判。入口节点在运行提交的那一刻就被派出去，而裁判正卡在提交它的
-    那次激活里——节点会排在自己后面，等自己让出通道。一旦通道没及时释放，这个
-    节点就永远等不到，整个运行随它一起超时失败。
-
-    用第一位存活 Bot。已出局玩家的通道虽然更空，但那条通道要留给看门狗任务
-    （见 cmd_render_vote_watchdog），两个都往那儿塞就是换个地方再犯一次同样的错。
-    代价是入口节点结束的瞬间，它自己的投票节点会派回同一条通道——那个窗口只有
-    零点几秒，用 CONTENDED_NODE_TIMEOUT_MS 兜住。
-    """
-    for s in living:
-        if s["kind"] == "bot":
-            return s
-    die("NO_BOT_GATE", "场上没有可用的 Bot 来当投票运行的入口节点，这一轮投票开不了。")
-    raise AssertionError("unreachable")
-
-
 def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
     rnd = state["round"]
     living = sorted(alive_seats(state), key=lambda s: s["seat"])
     node_ids = [f"vote_{s['seat']}" for s in living]
     seat_list = "、".join(f"{s['seat']}号 {s['display']}" for s in living)
-    gate = vote_gate_seat(living)
 
     participants = []
     for s in living:
@@ -533,21 +566,30 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             )
     participants.append('  referee:\n    display_name: "主持人"\n    required: true')
 
-    # 入口节点的产物会作为 [Upstream Outputs] 流给每一个投票节点，所以它必须是
-    # 一个固定的、零信息量的 token——不能让它捎带任何关于牌面的东西。
+    # 入口节点归主持人。流程推进只由主持人做，玩家 Bot 不当门房。
+    #
+    # 但它的产物会作为 [Upstream Outputs] 流给每一个投票节点——投票是全场信息最
+    # 敏感的一刻，主持人在这里多说一个字都可能给某个人加权。所以这段稿子是全局
+    # 唯一一段被写死内容边界的：只许说“开投了、票箱在副屏、只交票号、投完一起念”，
+    # 不许出现任何玩家、任何发言、任何倾向。
     open_instruction = (
-        "【开场节点】\n"
-        f"第 {rnd} 轮投票现在开始。这个节点只是运行的入口，你在这里不需要做任何判断。\n"
-        "只输出两个字：开始\n"
-        "不要输出别的任何内容，不要提到任何玩家、词语、发言或投票倾向。"
+        "【主持人节点 · 开投】\n"
+        f"第 {rnd} 轮投票现在开始。这是本轮投票运行的入口，你在这里只说一句开场，"
+        "不要调用任何脚本、不要做任何判断。\n"
+        "只说这四件事：开投了 / 所有人同时投、票箱在右边副屏 / 只交票号不写理由 / "
+        "投完我一起念。不超过 2 句话，可以用 🗳️。\n"
+        "这段话会原样转给每一位正在投票的玩家。**不要提到任何玩家的号码或名字、"
+        "不要复述或评价任何一句发言、不要流露任何倾向**——多说一个字都可能左右选票。\n"
+        "也不要出现阶段编号、节点名或运行 ID。"
     )
     nodes = [
         "      vote_open:\n"
         "        kind: bot_task\n"
-        '        display_name: "投票开场"\n'
+        '        display_name: "开投"\n'
         "        assignee:\n"
         "          type: bot_binding\n"
-        f"          binding: {gate['binding']}\n"
+        "          binding: referee\n"
+        f"        node_timeout_ms: {ENTRY_NODE_TIMEOUT_MS}\n"
         f"        instruction: |\n{block(open_instruction, 10)}\n"
         "        transitions:\n"
         "          complete:\n"
@@ -562,7 +604,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮投票 · 你是 {s['seat']} 号。\n"
                 f"所有人历史全部发言在本次运行的输入里，主持人也已经在群里念过一遍。"
-                "这些发言是唯一的判断依据。\n\n"
+                "这些发言是唯一的判断依据（上游产物里只有主持人的开场，没有信息）。\n\n"
                 f"可以投的人：{others}。不能投自己。\n"
                 "只写「我投N号」，N 是阿拉伯数字，不要写理由。\n"
                 "这一轮所有人都只交票号——理由会暴露自己那个词，所以谁都不写。\n"
@@ -583,7 +625,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"你是本局的 {s['seat']} 号玩家。你的词语是【{s['word']}】。\n"
                 f"现在是第 {rnd} 轮投票。全场玩家是：{seat_list}。\n"
                 f"[Input] 里是所有人**全部历史轮次**的发言原话，逐字可查——"
-                "这是你唯一的判断依据。\n"
+                "这是你唯一的判断依据。[Upstream Outputs] 里只有主持人的开场，不含任何信息。\n"
                 f"可以投的人：{others}。不能投自己。\n\n"
                 "在心里想清楚投谁，但**只输出票号本身**：「我投N号」，N 是阿拉伯数字。\n"
                 "不写理由、不引用别人的话、不解释、不加任何前缀。整条不超过 "
@@ -593,13 +635,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 "确实无法判断时，只输出「我弃权」。\n"
                 f"任何情况下都不得在输出里出现「{s['word']}」或它的任何一部分。"
             )
-            # 入口节点那位刚在同一条通道上跑完 vote_open，投票节点会在它结束的
-            # 瞬间派回来，是全场唯一一个可能撞上通道未释放的玩家节点。
-            timeout_line = (
-                f"        node_timeout_ms: {CONTENDED_NODE_TIMEOUT_MS}\n"
-                if s["seat"] == gate["seat"]
-                else ""
-            )
+            # 入口节点归了裁判，玩家的投票节点不再和任何东西抢通道，走默认超时。
             nodes.append(
                 f"      {nid}:\n"
                 f"        kind: bot_task\n"
@@ -607,7 +643,6 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"        assignee:\n"
                 f"          type: bot_binding\n"
                 f"          binding: {s['binding']}\n"
-                f"{timeout_line}"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
                 f"          complete:\n"
@@ -622,7 +657,11 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "说明身份暂不公布、报剩下几个人。判定一律以事实层返回为准，不要自己数票。\n"
         "   **玩家没有给理由，你也不许替他们编、不许猜他们为什么这么投。**"
         "这一段的戏在票型上——谁压谁、谁是孤票、谁被围了。\n"
+        "   返回里 tie 为真就是平票：本轮没有人出局，直接进下一轮，没有重投这回事。\n"
         "3. 如果事实层说本局结束，就在这里公布完整真相（先调 reveal）。\n"
+        "**这个节点里只做这三件事。不要派任何任务、不要调 bcs_assign_task、"
+        "不要去查 bcs 的用法。**下一轮的唤醒源等这段稿子发出去之后再安排——"
+        "这条消息会把你自己叫醒一次，那次才是安排它的地方。\n"
         "只输出给玩家看的主持稿，不要输出任何未出局玩家的词语或身份、内部状态、节点名或运行 ID。"
     )
     nodes.append(
@@ -661,6 +700,121 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
 # 子命令
 # --------------------------------------------------------------------------
 
+def bcs_url() -> str:
+    return os.environ.get("BCS_API_BASE_URL") or "http://127.0.0.1:21000"
+
+
+def run_command(session_id: str, yaml_path: str, input_path: str, bindings: list[str]) -> str:
+    """给人看的、可以原样粘进 shell 的提交命令（用技能里定义的 bcs 函数）。"""
+    parts = ["bcs collaborate run", shlex.quote(yaml_path), "--session", shlex.quote(session_id)]
+    for b in bindings:
+        parts += ["--binding", shlex.quote(b)]
+    parts += ["--input", "@" + shlex.quote(input_path)]
+    return " ".join(parts)
+
+
+def bcs_cli(*args: str, timeout: int = 90) -> tuple[int, str, str]:
+    cmd = ["bcs-cli", "--url", bcs_url(), *args]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except FileNotFoundError:
+        die(
+            "NO_BCS_CLI",
+            "PATH 里找不到 bcs-cli，复合命令用不了。退回手工两步：先 render-speak-run / render-vote-run 拿到 run_command，再自己跑一遍 bcs collaborate permission 和那条命令。",
+        )
+    except subprocess.TimeoutExpired:
+        die("BCS_CLI_TIMEOUT", f"bcs-cli {args[0] if args else ''} 超过 {timeout} 秒没返回。")
+    return r.returncode, r.stdout, r.stderr
+
+
+def last_json(text: str) -> dict[str, Any] | None:
+    """bcs-cli 有时在 JSON 前面打日志行、有时又是缩进过的多行 JSON，两种都要认。"""
+    t = (text or "").strip()
+    if not t:
+        return None
+    try:
+        whole = json.loads(t)
+        if isinstance(whole, dict):
+            return whole
+    except ValueError:
+        pass
+    dec = json.JSONDecoder()
+    found = None
+    idx = t.find("{")
+    while idx != -1:
+        try:
+            obj, end = dec.raw_decode(t[idx:])
+        except ValueError:
+            idx = t.find("{", idx + 1)
+            continue
+        if isinstance(obj, dict):
+            found = obj
+            idx = t.find("{", idx + end)
+        else:
+            idx = t.find("{", idx + 1)
+    return found
+
+
+def require_run_slot(session_id: str) -> None:
+    """一个 session 同时只能有一个自定义协作运行，只认服务端返回的 allowed。"""
+    code, out, err = bcs_cli("collaborate", "permission", "--session", session_id)
+    data = last_json(out)
+    if data is None:
+        die("PERMISSION_UNREADABLE", f"读不懂 collaborate permission 的返回：{(out or err)[:300]}")
+    if not data.get("allowed"):
+        die(
+            "RUN_SLOT_BUSY",
+            f"服务端不放行，reason={data.get('reason') or data.get('message') or code}。"
+            "state_machine_run_active 的话等几秒再试，最多三次；仍然被占就告诉人类并停下。",
+        )
+
+
+def submit_run(session_id: str, yaml_path: str, input_path: str, bindings: list[str]) -> dict[str, Any]:
+    args = ["collaborate", "run", yaml_path, "--session", session_id]
+    for b in bindings:
+        args += ["--binding", b]
+    args += ["--input", "@" + input_path]
+    code, out, err = bcs_cli(*args)
+    data = last_json(out)
+    if code != 0 or data is None:
+        die(
+            "SUBMIT_FAILED",
+            f"提交运行失败（exit={code}）：{(err or out)[:300]}。"
+            "不要重复提交，先告诉人类，再走卡住诊断。",
+        )
+    return data
+
+
+def resolve_referee_uuid(explicit: str | None) -> str:
+    """裁判自己的 bot_uuid。
+
+    这一步以前是让模型去读环境变量 BCN_BOT_UUID 的，但那个变量在本平台是空的，
+    而 bot_uuid 实际上就等于 Bot 名称。模型为此花了三个来回翻 session.json，
+    每个来回都在群里留下一段状态旁白——那正是人类看到一堆无关文字的来源之一。
+    所以这件事挪到脚本里做，模型不需要知道自己叫什么。
+    """
+    if explicit and explicit.strip():
+        return explicit.strip()
+    env = os.environ.get("BCN_BOT_UUID")
+    if env and env.strip():
+        return env.strip()
+    base = os.environ.get("BOT_DATA_DIR") or os.environ.get("OPENCLAW_DATA_DIR")
+    if base:
+        try:
+            data = json.loads((Path(base) / ".bcs" / "session.json").read_text(encoding="utf-8"))
+            uuid = str(data.get("bot_uuid") or "").strip()
+            if uuid:
+                return uuid
+        except (OSError, ValueError, TypeError):
+            pass
+    die(
+        "NO_REFEREE_UUID",
+        "认不出裁判自己的 bot_uuid：BCN_BOT_UUID 是空的，$BOT_DATA_DIR/.bcs/session.json 也读不到。"
+        "用 --referee-uuid 显式给一个（本平台就是 Bot 名称）。",
+    )
+    raise AssertionError("unreachable")
+
+
 def load_word_bank(difficulty: str) -> list[tuple[str, str]]:
     path = skill_dir() / "references" / "word-bank" / f"{difficulty}.tsv"
     if not path.exists():
@@ -679,6 +833,7 @@ def load_word_bank(difficulty: str) -> list[tuple[str, str]]:
 
 
 def cmd_init(args: argparse.Namespace) -> None:
+    referee_uuid = resolve_referee_uuid(args.referee_uuid)
     with locked(args.session):
         if state_path(args.session).exists() and not args.force:
             die("ALREADY_STARTED", "这一局已经开过了。想重开请加 --force。")
@@ -754,14 +909,13 @@ def cmd_init(args: argparse.Namespace) -> None:
             "session_id": args.session,
             "group_id": args.group,
             "human_actor_id": args.human,
-            "referee_uuid": args.referee_uuid,
+            "referee_uuid": referee_uuid,
             "phase": "AWAIT_START",
             "config": cfg,
             "words": {"civilian": civ, "undercover": und},
             "seats": seats,
             "round": 0,
             "rounds": [],
-            "consecutive_ties": 0,
             "pending_ping": None,
             "result": None,
         }
@@ -778,6 +932,7 @@ def cmd_init(args: argparse.Namespace) -> None:
                 {"seat": s["seat"], "player": s["display"], "kind": s["kind"]} for s in seats
             ],
             "human_seat": next(s["seat"] for s in seats if s["kind"] == "human"),
+            "referee_uuid": referee_uuid,
             "next_action": NEXT_ACTION["AWAIT_START"],
         }
     )
@@ -785,26 +940,31 @@ def cmd_init(args: argparse.Namespace) -> None:
 
 def cmd_status(args: argparse.Namespace) -> None:
     state = load_state(args.session)
+    ping = state["pending_ping"]
+    brief = {
+        "phase": state["phase"],
+        "round": f"{state['round']}/{state['config']['max_rounds']}",
+        "alive": [f"{s['seat']}号{s['display']}" for s in alive_seats(state)],
+        "pending_ping": (ping or {}).get("bot_name"),
+        "next_action": NEXT_ACTION.get(state["phase"], "先跑 status"),
+    }
+    if not args.full:
+        emit(brief, compact=True)
+        return
     emit(
         {
-            "phase": state["phase"],
-            "round": state["round"],
+            **brief,
+            "round_no": state["round"],
             "max_rounds": state["config"]["max_rounds"],
-            "alive": [
-                {"seat": s["seat"], "player": s["display"], "kind": s["kind"]}
-                for s in alive_seats(state)
-            ],
             "eliminated": [
                 {"seat": s["seat"], "player": s["display"], "round": s["eliminated_round"]}
                 for s in state["seats"]
                 if not s["alive"]
             ],
             "human_seat": next(s["seat"] for s in state["seats"] if s["kind"] == "human"),
-            "pending_ping": state["pending_ping"],
-            "consecutive_ties": state["consecutive_ties"],
+            "pending_ping_detail": ping,
             "renders": (state["rounds"][-1].get("renders", {}) if state["rounds"] else {}),
             "result": state["result"],
-            "next_action": NEXT_ACTION.get(state["phase"], "先跑 status"),
         }
     )
 
@@ -820,10 +980,10 @@ def run_file_kind(kind: str, rnd: int, attempt: int) -> str:
     return f"{kind}-r{rnd}" if attempt <= 1 else f"{kind}-r{rnd}-retry{attempt - 1}"
 
 
-def cmd_render_speak_run(args: argparse.Namespace) -> None:
-    with locked(args.session):
-        state = load_state(args.session)
-        if args.retry:
+def prepare_speak_run(session_id: str, retry: bool) -> dict[str, Any]:
+    with locked(session_id):
+        state = load_state(session_id)
+        if retry:
             # 重开当前这一轮：上一次提交的运行失败了，而运行失败不会唤醒裁判。
             # 轮次不推进、本轮记录不重建，只把同一份 YAML 重新渲染一次。
             require_phase(state, "SPEAK_RUNNING")
@@ -866,26 +1026,29 @@ def cmd_render_speak_run(args: argparse.Namespace) -> None:
             ),
         }
         yaml_path, input_path = write_run_files(
-            args.session, run_file_kind("speak", state["round"], attempt), yaml_text, run_input
+            session_id, run_file_kind("speak", state["round"], attempt), yaml_text, run_input
         )
         save_state(state)
 
-    emit(
-        {
-            "phase": "SPEAK_RUNNING",
-            "round": state["round"],
-            "attempt": attempt,
-            "yaml_path": yaml_path,
-            "input_path": input_path,
-            "bindings": bindings,
-            "binding_args": " ".join(f'--binding "{b}"' for b in bindings),
-            "speaking_order": [
-                {"seat": s["seat"], "player": s["display"], "kind": s["kind"]} for s in living
-            ],
-            "human_seat": next(s["seat"] for s in state["seats"] if s["kind"] == "human"),
-            "note": "YAML 里含词语，不要读它、不要贴它，直接交给 bcs collaborate run。",
-        }
+    return {
+        "phase": "SPEAK_RUNNING",
+        "round": state["round"],
+        "attempt": attempt,
+        "yaml_path": yaml_path,
+        "input_path": input_path,
+        "bindings": bindings,
+        "binding_args": " ".join(f'--binding "{b}"' for b in bindings),
+        "run_command": run_command(session_id, yaml_path, input_path, bindings),
+    }
+
+
+def cmd_render_speak_run(args: argparse.Namespace) -> None:
+    payload = prepare_speak_run(args.session, args.retry)
+    payload.pop("bindings", None)
+    payload["note"] = (
+        "YAML 里含词语，不要读它、不要贴它。开场稿由运行的入口节点产出，提交完不要再说话。"
     )
+    emit(payload, compact=True)
 
 
 def cmd_speeches_set(args: argparse.Namespace) -> None:
@@ -936,10 +1099,10 @@ def cmd_speeches_set(args: argparse.Namespace) -> None:
     )
 
 
-def cmd_render_vote_run(args: argparse.Namespace) -> None:
-    with locked(args.session):
-        state = load_state(args.session)
-        if args.retry:
+def prepare_vote_run(session_id: str, retry: bool) -> dict[str, Any]:
+    with locked(session_id):
+        state = load_state(session_id)
+        if retry:
             # 投票运行失败不会唤醒裁判，phase 却已经推到 VOTE_RUNNING 了。
             # 没有这条路，卡住诊断走到重开那一步就会被阶段卫兵拦死。
             require_phase(state, "VOTE_RUNNING")
@@ -958,26 +1121,30 @@ def cmd_render_vote_run(args: argparse.Namespace) -> None:
             "rule": "只根据所有人历史全部发言，投出你认为词语和大家不一样的人；不能投自己；只交票号，不写理由",
         }
         yaml_path, input_path = write_run_files(
-            args.session, run_file_kind("vote", state["round"], attempt), yaml_text, run_input
+            session_id, run_file_kind("vote", state["round"], attempt), yaml_text, run_input
         )
         save_state(state)
 
-    emit(
-        {
-            "phase": "VOTE_RUNNING",
-            "round": state["round"],
-            "attempt": attempt,
-            "yaml_path": yaml_path,
-            "input_path": input_path,
-            "bindings": bindings,
-            "binding_args": " ".join(f'--binding "{b}"' for b in bindings),
-            "voters": [
-                {"seat": s["seat"], "player": s["display"], "kind": s["kind"]} for s in living
-            ],
-            "note": "YAML 里含词语，不要读它、不要贴它，直接交给 bcs collaborate run。"
-            + ("" if attempt <= 1 else " 这是本轮第 %d 次开投，要向人类说明之前的票作废。" % attempt),
-        }
+    return {
+        "phase": "VOTE_RUNNING",
+        "round": state["round"],
+        "attempt": attempt,
+        "yaml_path": yaml_path,
+        "input_path": input_path,
+        "bindings": bindings,
+        "binding_args": " ".join(f'--binding "{b}"' for b in bindings),
+        "run_command": run_command(session_id, yaml_path, input_path, bindings),
+    }
+
+
+def cmd_render_vote_run(args: argparse.Namespace) -> None:
+    payload = prepare_vote_run(args.session, args.retry)
+    payload.pop("bindings", None)
+    payload["note"] = (
+        "YAML 里含词语，不要读它、不要贴它。开投稿由运行的入口节点产出，提交完不要再说话。"
+        + ("" if payload["attempt"] <= 1 else " 这是本轮第 %d 次开投，要向人类说明之前的票作废。" % payload["attempt"])
     )
+    emit(payload, compact=True)
 
 
 def choose_ping(state: dict[str, Any], eliminated_seat: int | None) -> dict[str, Any] | None:
@@ -1051,17 +1218,12 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
         top = max(counts.values()) if counts else 0
         candidates = sorted(s for s, c in counts.items() if c == top) if top else []
         tie = len(candidates) != 1
-        eliminated = None
-        forced = False
-        if not tie:
-            eliminated = candidates[0]
-            state["consecutive_ties"] = 0
-        elif candidates and state["consecutive_ties"] >= 1:
-            eliminated = random.SystemRandom().choice(candidates)
-            state["consecutive_ties"] = 0
-            forced = True
-        else:
-            state["consecutive_ties"] += 1
+        # 平票 = 本轮无人出局，直接进下一轮。没有重投，也不在平票者里随机挑人。
+        #
+        # 代价是明摆着的：平票不减员，但照样烧掉一轮，而轮数用完判卧底赢，所以平
+        # 票是纯粹的平民损失。这是有意的——票是暗投、只有票号、Bot 之间没法串供，
+        # 连着平票很难人为制造；真要调平衡，杠杆是 max_rounds，不是把重投加回来。
+        eliminated = None if tie else candidates[0]
 
         if eliminated is not None:
             s = seat_of(state, eliminated)
@@ -1102,7 +1264,6 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
                 for s, c in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
             ],
             "tie": tie,
-            "forced_by_repeat_tie": forced,
             "eliminated": (
                 {"seat": eliminated, "player": seat_of(state, eliminated)["display"]}
                 if eliminated
@@ -1117,7 +1278,8 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
             "ping": ping,
             "next_action": NEXT_ACTION[state["phase"]],
             "note": "只使用 text 字段念稿——它已经规范化成票号，玩家的原话不会给你。"
-            "不要替玩家编造或猜测投票理由。出局者身份不要公布，除非 verdict 是 finished。",
+            "不要替玩家编造或猜测投票理由。出局者身份不要公布，除非 verdict 是 finished。"
+            "tie 为真就是本轮无人出局、直接进下一轮，没有重投这回事。",
         }
     )
 
@@ -1165,18 +1327,19 @@ def cmd_render_vote_watchdog(args: argparse.Namespace) -> None:
     """
     state = load_state(args.session)
     require_phase(state, "VOTE_RUNNING")
+    emit(vote_watchdog(state))
+
+
+def vote_watchdog(state: dict[str, Any]) -> dict[str, Any]:
     dead_bots = [
         s for s in state["seats"] if s["kind"] == "bot" and not s["alive"] and s["bot_name"]
     ]
     if not dead_bots:
-        emit(
-            {
-                "available": False,
-                "reason": "场上还没有出局的 Bot，这一轮没有安全的看门狗人选。",
-                "note": "不要改派给存活玩家。这一轮的兜底是人类：主持稿里说清超过 5 分钟没结果就回你一句。",
-            }
-        )
-        return
+        return {
+            "available": False,
+            "reason": "场上还没有出局的 Bot，这一轮没有安全的看门狗人选。",
+            "note": "不要改派给存活玩家。这一轮的兜底是人类：主持稿里说清超过 5 分钟没结果就回你一句。",
+        }
     target = max(dead_bots, key=lambda s: (s["eliminated_round"] or 0, s["seat"]))
     message = (
         "【看门狗任务】\n"
@@ -1184,15 +1347,134 @@ def cmd_render_vote_watchdog(args: argparse.Namespace) -> None:
         "请等大约三分钟，然后只回一句：看门狗回执。\n"
         "不要说别的，不要提词语、身份、发言或任何推理。"
     )
+    return {
+        "available": True,
+        "target_bot": target["bot_name"],
+        "player": target["display"],
+        "message": message,
+        "note": "用 bcs_assign_task 把 message 原样发给 target_bot。"
+        "收到「看门狗回执」时先查 status 和 collaborate permission：allowed 就说明投票运行已经失败，走卡住诊断重开。",
+    }
+
+
+def cmd_begin(args: argparse.Namespace) -> None:
+    """开局前的全部探测一次做完：人类在不在、有哪些 Bot、我自己是谁、init 怎么写。
+
+    这一步以前要模型自己拼三条 jq、还要去猜自己的 UUID，每一条都要一个来回，每个
+    来回都会在群里留下一段状态旁白。现在一条命令给完。
+    """
+    referee_uuid = resolve_referee_uuid(args.referee_uuid)
+    code, out, err = bcs_cli("session", "get", args.session)
+    data = last_json(out)
+    if code != 0 or data is None:
+        die("SESSION_GET_FAILED", f"读不到会话信息（exit={code}）：{(err or out)[:300]}")
+
+    human = None
+    bots: list[tuple[str, str]] = []
+    for p in data.get("participants") or []:
+        kind = p.get("actor_kind") or "bot"
+        uuid = str(p.get("bot_uuid") or "")
+        name = str(p.get("bot_name") or uuid)
+        if kind == "human":
+            # 人类参与者的 mode 缺省是 absent，不是 present；字段缺失按 absent 处理。
+            human = {"actor_id": uuid, "name": name, "present": (p.get("mode") or "absent") == "present"}
+        elif uuid and uuid != referee_uuid and name != referee_uuid:
+            bots.append((name, uuid))
+
+    if human is None:
+        emit(
+            {
+                "human_present": False,
+                "reason": "这个会话里还没有人类参与者。",
+                "next_action": "说「加入提示」那段，结束激活。人类加入后会发消息过来，届时重跑 begin。",
+            },
+            compact=True,
+        )
+        return
+    if not human["present"]:
+        emit(
+            {
+                "human_present": False,
+                "human_actor_id": human["actor_id"],
+                "reason": "人类在会话里但没有加入（mode 不是 present），含用户输入节点的运行会被拒。",
+                "next_action": "说「加入提示」那段，结束激活。他加入后会发消息过来，届时重跑 begin。",
+            },
+            compact=True,
+        )
+        return
+
+    init_cmd = " ".join(
+        [
+            "uc init",
+            "--session", shlex.quote(args.session),
+            "--group", shlex.quote(args.group),
+            "--human", shlex.quote(human["actor_id"]),
+        ]
+        + [x for name, uuid in bots for x in ("--bot", shlex.quote(f"{name}={uuid}"))]
+        + ["--difficulty", args.difficulty, "--undercover", str(args.undercover),
+           "--max-rounds", str(args.max_rounds)]
+    )
     emit(
         {
-            "available": True,
-            "target_bot": target["bot_name"],
-            "player": target["display"],
-            "message": message,
-            "note": "用 bcs_assign_task 把 message 原样发给 target_bot。"
-            "收到「看门狗回执」时先查 status 和 collaborate permission：allowed 就说明投票运行已经失败，走卡住诊断重开。",
-        }
+            "human_present": True,
+            "human_actor_id": human["actor_id"],
+            "bots": [name for name, _ in bots],
+            "referee_uuid": referee_uuid,
+            "init_command": init_cmd,
+            "next_action": "说开场白，请人类回一句「开始」。**这一步不 init**——他可能还想先问问规则。",
+        },
+        compact=True,
+    )
+
+
+def cmd_open_round(args: argparse.Namespace) -> None:
+    """开一轮发言：查槽位 → 渲染 → 提交，一条命令做完。
+
+    合成这一条不是为了省事，是为了把「提交」和「激活结束」之间的距离压到零。
+    入口节点是裁判自己的，它在提交那一刻就排进裁判的通道；裁判在提交之后每多花
+    一个来回，入口节点就多等一个来回。所以提交必须是本次激活的最后一个动作，
+    而最省事的保证办法就是让它和前面几步待在同一条命令里。
+    """
+    require_run_slot(args.session)
+    payload = prepare_speak_run(args.session, args.retry)
+    result = submit_run(args.session, payload["yaml_path"], payload["input_path"], payload["bindings"])
+    emit(
+        {
+            "phase": payload["phase"],
+            "round": payload["round"],
+            "attempt": payload["attempt"],
+            "submitted": True,
+            "run_id": result.get("run_id") or (result.get("nodes") or [{}])[0].get("run_id"),
+            "next_action": "本轮开场稿由运行的入口节点产出，你现在什么都不用说。"
+            "收尾只留一个字都行，立刻结束激活——你多占一秒通道，开场就晚一秒。",
+        },
+        compact=True,
+    )
+
+
+def cmd_open_vote(args: argparse.Namespace) -> None:
+    """开投：查槽位 → 渲染 → 提交 → 顺带把看门狗的任务文案备好。
+
+    看门狗要在提交之后才知道派给谁，但派任务是工具调用、不占通道，可以放在提交
+    之后做。真正不能放在提交之后的是「说话」——那由入口节点负责。
+    """
+    require_run_slot(args.session)
+    payload = prepare_vote_run(args.session, args.retry)
+    result = submit_run(args.session, payload["yaml_path"], payload["input_path"], payload["bindings"])
+    state = load_state(args.session)
+    emit(
+        {
+            "phase": payload["phase"],
+            "round": payload["round"],
+            "attempt": payload["attempt"],
+            "submitted": True,
+            "run_id": result.get("run_id") or (result.get("nodes") or [{}])[0].get("run_id"),
+            "watchdog": vote_watchdog(state),
+            "next_action": "开投稿由运行的入口节点产出，你不用说。只剩一件事：如果 watchdog.available "
+            "是 true，用 bcs_assign_task 把 watchdog.message 原样发给 watchdog.target_bot，然后结束激活。"
+            + ("" if payload["attempt"] <= 1 else " 这是本轮第 %d 次开投，要向人类说明之前的票作废。" % payload["attempt"]),
+        },
+        compact=True,
     )
 
 
@@ -1252,7 +1534,11 @@ def main() -> None:
     p = with_session(sub.add_parser("init", help="开一局：抽词、排座位、抽卧底"))
     p.add_argument("--group", required=True)
     p.add_argument("--human", required=True)
-    p.add_argument("--referee-uuid", required=True)
+    p.add_argument(
+        "--referee-uuid",
+        default=None,
+        help="裁判自己的 bot_uuid。不给就由脚本解析（BCN_BOT_UUID → .bcs/session.json）。",
+    )
     p.add_argument("--bot", action="append", default=[], metavar="名称=UUID")
     p.add_argument("--difficulty", default="medium", choices=["easy", "medium", "hard"])
     p.add_argument("--undercover", type=int, default=1)
@@ -1261,7 +1547,9 @@ def main() -> None:
     p.add_argument("--force", action="store_true")
     p.set_defaults(func=cmd_init)
 
-    with_session(sub.add_parser("status", help="当前阶段和下一步")).set_defaults(func=cmd_status)
+    p = with_session(sub.add_parser("status", help="当前阶段和下一步"))
+    p.add_argument("--full", action="store_true", help="连出局名单、渲染次数、终局结果一起给")
+    p.set_defaults(func=cmd_status)
 
     p = with_session(sub.add_parser("render-speak-run", help="渲染本轮发言协作"))
     p.add_argument(
@@ -1278,6 +1566,22 @@ def main() -> None:
         help="重开当前这一轮的投票运行（上一次提交的运行失败了）。之前的票作废。",
     )
     p.set_defaults(func=cmd_render_vote_run)
+
+    p = with_session(sub.add_parser("begin", help="开局探测：人类在不在、有哪些 Bot、init 怎么写"))
+    p.add_argument("--group", required=True)
+    p.add_argument("--referee-uuid", default=None)
+    p.add_argument("--difficulty", default="medium", choices=["easy", "medium", "hard"])
+    p.add_argument("--undercover", type=int, default=1)
+    p.add_argument("--max-rounds", type=int, default=6)
+    p.set_defaults(func=cmd_begin)
+
+    p = with_session(sub.add_parser("open-round", help="开一轮发言：查槽位、渲染、提交"))
+    p.add_argument("--retry", action="store_true", help="重开当前这一轮的发言运行。轮次不推进。")
+    p.set_defaults(func=cmd_open_round)
+
+    p = with_session(sub.add_parser("open-vote", help="开投：查槽位、渲染、提交、备好看门狗"))
+    p.add_argument("--retry", action="store_true", help="重开当前这一轮的投票运行。之前的票作废。")
+    p.set_defaults(func=cmd_open_vote)
 
     with_session(sub.add_parser("render-ping", help="渲染遗言或预备任务")).set_defaults(
         func=cmd_render_ping
