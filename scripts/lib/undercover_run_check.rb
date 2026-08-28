@@ -129,9 +129,18 @@ if kind == "speak"
     nodes["speak_open"]["instruction"].to_s.include?("本轮钝度")
   # 泄词有字面和语义两条路。forbid_line 管字面，钝度段管语义——第一轮就把词描述到
   # 只对应一件东西，卧底当场暴露，整局一轮就结束。每个发言节点都必须带上本轮钝度。
+  #
+  # 人类那一席是短句版：Bot 节点那套（枚举二字组合、自检问句、类目白名单）是写给
+  # 模型看的硬约束，人类读到一半就跳过了。所以只要求它带上「说钝一点 + 至少 N 样」
+  # 这把尺子本身，形式不同、约束不缺。
   order.each do |nid|
-    abort "speaker #{nid} is missing the bluntness block" unless
-      nodes[nid]["instruction"].to_s.include?("本轮钝度")
+    inst = nodes[nid]["instruction"].to_s
+    if nodes[nid]["kind"] == "human_input"
+      abort "human speaker #{nid} is missing the short bluntness line" unless
+        inst.include?("说钝一点") && inst =~ /至少 \d+ 样/
+    else
+      abort "speaker #{nid} is missing the bluntness block" unless inst.include?("本轮钝度")
+    end
   end
   order.each_with_index do |nid, i|
     got = nodes[nid].dig("transitions", "complete", "targets")

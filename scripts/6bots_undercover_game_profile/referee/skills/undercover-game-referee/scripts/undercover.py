@@ -5,8 +5,10 @@
 模型只负责把渲染好的内容交给工具，以及用主持人的口吻说话。
 
 两条不变量：
-  1. 除 render-* 和 reveal 外，任何子命令的 stdout 都不包含词语和身份。
-     这样即使把命令输出原样贴进群聊也不会泄密。
+  1. 除 render-* / reveal / my-word 和 init 的 human_word 外，任何子命令的 stdout
+     都不包含词语和身份。这样即使把命令输出原样贴进群聊也不会泄密。
+     human_word 是唯一的例外，给的只有**人类玩家自己那个词**：群聊是裁判和人类的
+     私密双人频道，Bot 一个字都看不到，所以把它念给人类是安全的。
   2. render-speak-run / render-vote-run 把含词的 YAML 写进文件、只打印路径，
      词一次都不经过模型的输出通道。
 
@@ -27,6 +29,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -43,9 +46,9 @@ PHASES = (
 )
 
 NEXT_ACTION = {
-    "AWAIT_START": "等人类回一句就开局：先 render-speak-run，再提交发言协作。",
+    "AWAIT_START": "开第一轮：先把人类自己的词念给他（init 返回的 human_word，或 my-word），再 open-round。",
     "SPEAK_RUNNING": "等发言协作把汇总节点派给你；拿到全部发言后调 speeches-set。",
-    "AWAIT_VOTE_START": "等人类说一声开投；然后 render-vote-run 并提交投票协作。",
+    "AWAIT_VOTE_START": "直接开投，不用等人类说话：跑 open-vote。",
     "VOTE_RUNNING": "等投票协作把计票节点派给你；计票节点上调 votes-set。运行超时未回就走卡住诊断。",
     "AWAIT_NEXT_ROUND": "等出局者的遗言回执；收到后 render-speak-run 开下一轮。",
     "FINISHED": "本局已结束，只能 reveal。想再来一局请新建会话。",
@@ -78,6 +81,16 @@ CONTENDED_NODE_TIMEOUT_MS = 600_000
 ENTRY_NODE_TIMEOUT_MS = 900_000
 HUMAN_NODE_TIMEOUT_MS = 900_000
 NODE_MAX_ATTEMPTS = 1
+
+# 发言轮收尾和「自动开投」之间只隔几秒：汇总稿回灌唤醒裁判的实测延迟是 3–7 秒，
+# 而那时发言运行可能刚好还没释放协作槽位。与其让裁判自己「等几秒再试一次」——每
+# 试一次就是一个来回、一段群里的无关文字——不如在脚本里退避重试。
+RUN_SLOT_RETRIES = 3
+RUN_SLOT_WAIT_S = 4
+
+# 遗言的字数上限。20 字只够喊一句冤，装不下「我怀疑几号 + 他哪句话不对」，
+# 而遗言是整局唯一一条只流向人类玩家的线索通道，值得给足位置。
+EULOGY_MAX_CHARS = 35
 
 DEFAULT_CONFIG = {
     "players": 6,
@@ -115,6 +128,95 @@ def work_dir(session_id: str) -> Path:
     d = game_dir() / "work" / safe
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def known_states() -> list[tuple[str, Path]]:
+    """(session_id, 状态文件)，最近改动的排在前面。
+
+    文件名是把 session_id 里的 ':' 换掉之后的安全名，反推不回来，所以真正的
+    session_id 从文件内容里读。
+    """
+    out: list[tuple[str, Path]] = []
+    for f in game_dir().glob("*.json"):
+        if f.name.startswith("."):
+            continue
+        try:
+            sid = str(json.loads(f.read_text(encoding="utf-8")).get("session_id") or "")
+        except (OSError, ValueError):
+            continue
+        if sid:
+            out.append((sid, f))
+    out.sort(key=lambda item: item[1].stat().st_mtime, reverse=True)
+    return out
+
+
+def guess_session() -> str | None:
+    """不报错地猜一次本局的 session_id。"""
+    for key in ("BCS_SESSION_ID", "BCS_GROUP_SESSION_ID", "OPENCLAW_SESSION_ID", "BCN_SESSION_ID"):
+        v = (os.environ.get(key) or "").strip()
+        if v:
+            return v
+    states = known_states()
+    if len(states) == 1:
+        return states[0][0]
+    return None
+
+
+def resolve_session(explicit: str | None) -> str:
+    """--session 变成可选的。
+
+    模型经常在读完参数说明之前就把第一条命令发出去了——实测开局连着两次都是这样，
+    一次漏了 --session、一次漏了 --group，两次 argparse 的 usage 转储都被转发进了
+    群里。参数能自己认出来的，就不该让模型的手速决定这一局的开场慢多少。
+    """
+    if explicit and explicit.strip():
+        return explicit.strip()
+    guess = guess_session()
+    if guess:
+        return guess
+    states = known_states()
+    if len(states) > 1:
+        die(
+            "AMBIGUOUS_SESSION",
+            "这台机器上不止一局，认不出你说的是哪一局。把 GroupContext 里的会话 ID 用 --session 传进来。",
+            sessions=[sid for sid, _ in states],
+        )
+    die(
+        "NO_SESSION",
+        "没给 --session，也没能自己认出本局。把 GroupContext 里那个形如 "
+        "bcs_grp_xxxx:yyyy 的会话 ID 用 --session 传进来。",
+    )
+    raise AssertionError("unreachable")
+
+
+def resolve_group(explicit: str | None, session_id: str) -> str:
+    """--group 也变成可选的：会话 ID 的冒号前半段就是群号。"""
+    if explicit and explicit.strip():
+        return explicit.strip()
+    head = session_id.split(":", 1)[0].strip()
+    if head:
+        return head
+    die("NO_GROUP", f"从会话 ID「{session_id}」里推不出群号，请用 --group 显式给一个。")
+    raise AssertionError("unreachable")
+
+
+class JsonArgumentParser(argparse.ArgumentParser):
+    """argparse 默认把 usage 打到 stderr 再退 2。
+
+    裁判的每一次命令输出都会被转发成群里的事件，一坨 usage 转储既占屏又泄露流程
+    细节；而且模型在那个当口需要的不是 usage，是一条能直接重跑的命令。所以这里把
+    参数错误也变成脚本自己的 JSON，并把已经认出来的会话 ID 一起递回去。
+    """
+
+    def error(self, message: str) -> None:  # type: ignore[override]
+        die(
+            "BAD_ARGS",
+            f"参数不对：{message}。--session 可以整个省掉（脚本自己认本局），"
+            "--group 也可以（从会话 ID 冒号前半段推出来）。",
+            command=(self.prog or "undercover.py").split()[-1],
+            detected_session=guess_session(),
+            usage=self.format_usage().strip(),
+        )
 
 
 @contextmanager
@@ -158,8 +260,9 @@ def save_state(state: dict[str, Any]) -> None:
         raise
 
 
-def die(code: str, message: str) -> None:
-    json.dump({"ok": False, "error": code, "message": message}, sys.stdout, ensure_ascii=False)
+def die(code: str, message: str, **extra: Any) -> None:
+    payload = {"ok": False, "error": code, "message": message, **extra}
+    json.dump(payload, sys.stdout, ensure_ascii=False)
     sys.stdout.write("\n")
     sys.exit(2)
 
@@ -198,6 +301,22 @@ def seat_of(state: dict[str, Any], seat: int) -> dict[str, Any]:
 
 def alive_seats(state: dict[str, Any]) -> list[dict[str, Any]]:
     return [s for s in state["seats"] if s["alive"]]
+
+
+def label_of(state: dict[str, Any], seat: int) -> str:
+    """念稿用的称呼：名字后面永远跟着号数。
+
+    人类玩家在副屏里投的是号码，在群里听到的却是名字——中间那次映射一直是他自己
+    在做。所以事实层直接把成品给出来，主持稿里每个人第一次出现就用这个。
+    """
+    s = seat_of(state, seat)
+    return f"{s['display']}（{s['seat']}号）"
+
+
+def public_name(state: dict[str, Any], seat: int) -> str:
+    """写给 Bot 看时的称呼：人类座位不能叫「你」。"""
+    s = seat_of(state, seat)
+    return "人类玩家" if s["kind"] == "human" else s["display"]
 
 
 def current_round(state: dict[str, Any]) -> dict[str, Any]:
@@ -244,7 +363,12 @@ def public_history(state: dict[str, Any]) -> list[dict[str, Any]]:
 # 为什么必须收敛：投票只看历史发言，发言要是一直很钝，投票就退化成随机；6 人 1 个
 # 卧底、每轮出局 1 个，第 4 轮结束只剩 2 人卧底就赢了，所以平民只有 4 轮时间，第 3
 # 轮起必须放到能真正推理的程度。
-BLUNTNESS_LADDER = {1: 5, 2: 3}
+#
+# 起点从 5 下调到 4：实测第一轮六句全是纯感受（「一天不碰它我就浑身难受」「合上
+# 之后会愣一会儿」），票型完全是噪声，第一轮白烧了一轮还冤杀了一个平民。真正卡死
+# 第一轮的其实不是这个数字，是下面那份类目白名单——它把属性整类禁掉了，所以一起
+# 松开：第一轮允许带一个属性，只是不许把用途和对象塞进同一句。
+BLUNTNESS_LADDER = {1: 4, 2: 3}
 BLUNTNESS_FLOOR = 2
 
 
@@ -262,17 +386,17 @@ def bluntness_block(rnd: int, first: bool) -> str:
     ]
     if rnd == 1:
         lines.append(
-            "第一轮只从这四类里挑一类说：什么时候会想到它 / 多久遇到一次 / "
-            "用完是什么感觉 / 一般放在哪儿。"
+            "第一轮挑一个角度说就够了：什么时候会想到它 / 多久遇到一次 / 用完是什么感觉 / "
+            "一般放在哪儿 / 大概是什么样。"
         )
         lines.append(
-            "不要说它是干什么用的、什么形状、什么材质、用在身体哪个部位。"
-            "一句话里「动作」和「对象」同时出现就是在下定义，本轮不许下定义。"
+            "可以带上一个具体属性（形状、材质、大小、场合都行），但一句里只放一个，"
+            "而且不要把「用途」和「对象」塞进同一句——那等于给这个词下定义，第一轮不下定义。"
         )
     elif rnd == 2:
         lines.append(
-            "这一轮可以加一个属性——形状、材质、使用场合，三选一，只挑一个。"
-            "仍然不要把用途和对象放在同一句里。"
+            "这一轮可以再多给一点：一个属性加一个使用场合都行。"
+            "整句仍然不要等于这个词的定义。"
         )
     else:
         lines.append("这一轮可以说用途了，但整句仍然不能等价于这个词的定义。")
@@ -466,20 +590,23 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         targets_yaml = "[" + ", ".join(targets) + "]"
         first = idx == 0
         if s["kind"] == "human":
+            # 人类节点的指令要短。Bot 节点那套（枚举二字组合、钝度自检问句、类目
+            # 白名单）是写给模型看的硬约束，人类读到一半就跳过了——实测他两轮都
+            # 直接给了定义句。他需要的只是：我是几号、我的词、一句话多长、别说出
+            # 那个词、说钝一点。字面泄词有 check_text 兜底，不必在这里枚举。
             instruction = (
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮 · 你是 {s['seat']} 号 · 轮到你发言了。\n"
-                f"上方「上游产物」里第一条是主持人的开场，其余是本轮在你之前玩家的原话；"
-                "历史轮次在本次运行的输入里。\n\n"
-                f"请写一句话（不超过 {SPEECH_MAX_CHARS} 个字）描述你的词语。\n"
-                f"{forbid_line(s['word'])}\n\n"
-                f"{bluntness_block(rnd, first)}\n\n"
-                "不要提身份、不要点评别人，只描述你的词。"
+                "上面能看到本轮在你之前的人说了什么。\n\n"
+                f"写一句话（不超过 {SPEECH_MAX_CHARS} 个字）描述你的词，"
+                "别把这个词说出来，也别拆开来说。\n"
+                f"说钝一点：这句话得能同时套在至少 {bluntness_n(rnd)} 样别的东西上。\n"
+                "别提身份、别点评别人，只说你的词。"
             )
             nodes.append(
                 f"      {nid}:\n"
                 f"        kind: human_input\n"
-                f"        display_name: {yq(str(s['seat']) + '号发言')}\n"
+                f"        display_name: {yq('👤 你的发言（' + str(s['seat']) + '号 · 人类玩家）')}\n"
                 f"        node_timeout_ms: {HUMAN_NODE_TIMEOUT_MS}\n"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
@@ -515,7 +642,10 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "[Upstream Outputs] 里是本轮全部玩家的发言。\n"
         "1. 先把每个座位的原话整理成 JSON，调 undercover.py speeches-set 交给事实层。\n"
         "2. 用它返回的可展示文本写主持稿：串场用你自己的话，发言逐字引用，不要改写、不要概括。\n"
-        "3. 结尾请人类玩家在群里说一声，准备好就开始投票。\n"
+        "   **每位玩家都要用返回里的 label 原样称呼（名字后面带号数），"
+        "例如「阿和（1号）开头：「…」」。**人类在副屏里投的是号码，"
+        "只报名字他就得自己去对照。\n"
+        "3. 结尾告诉人类：给他几秒看完，你这就开投——**不要再让他说一声**。\n"
         "只输出给玩家看的主持稿，不要输出任何词语、身份、内部状态、节点名或运行 ID。"
     )
     nodes.append(
@@ -603,17 +733,15 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             instruction = (
                 f"【你的词语】{s['word']}\n\n"
                 f"第 {rnd} 轮投票 · 你是 {s['seat']} 号。\n"
-                f"所有人历史全部发言在本次运行的输入里，主持人也已经在群里念过一遍。"
-                "这些发言是唯一的判断依据（上游产物里只有主持人的开场，没有信息）。\n\n"
-                f"可以投的人：{others}。不能投自己。\n"
-                "只写「我投N号」，N 是阿拉伯数字，不要写理由。\n"
-                "这一轮所有人都只交票号——理由会暴露自己那个词，所以谁都不写。\n"
+                "大家说过的话，主持人刚在群里念过一遍。\n\n"
+                f"可以投的人：{others}，不能投自己。\n"
+                "只写「我投N号」，N 是阿拉伯数字，不用写理由。\n"
                 "不想投就写「我弃权」。"
             )
             nodes.append(
                 f"      {nid}:\n"
                 f"        kind: human_input\n"
-                f"        display_name: {yq(str(s['seat']) + '号投票')}\n"
+                f"        display_name: {yq('👤 你的投票（' + str(s['seat']) + '号 · 人类玩家）')}\n"
                 f"        node_timeout_ms: {HUMAN_NODE_TIMEOUT_MS}\n"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
@@ -655,6 +783,9 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "1. 把每个座位的原话整理成 JSON，调 undercover.py votes-set 交给事实层计票。\n"
         "2. 用它返回的结果写开票主持稿：逐条报谁投了谁、报票数、宣布出局者、"
         "说明身份暂不公布、报剩下几个人。判定一律以事实层返回为准，不要自己数票。\n"
+        "   **每位玩家都要用返回里的 label / target_label 原样称呼（名字后面带号数），"
+        "例如「阿和（1号）投了阿浪（3号）」。**只报名字的话，人类下一轮就不知道"
+        "副屏里那些号码是谁。\n"
         "   **玩家没有给理由，你也不许替他们编、不许猜他们为什么这么投。**"
         "这一段的戏在票型上——谁压谁、谁是孤票、谁被围了。\n"
         "   返回里 tie 为真就是平票：本轮没有人出局，直接进下一轮，没有重投这回事。\n"
@@ -756,17 +887,29 @@ def last_json(text: str) -> dict[str, Any] | None:
 
 
 def require_run_slot(session_id: str) -> None:
-    """一个 session 同时只能有一个自定义协作运行，只认服务端返回的 allowed。"""
-    code, out, err = bcs_cli("collaborate", "permission", "--session", session_id)
-    data = last_json(out)
-    if data is None:
-        die("PERMISSION_UNREADABLE", f"读不懂 collaborate permission 的返回：{(out or err)[:300]}")
-    if not data.get("allowed"):
-        die(
-            "RUN_SLOT_BUSY",
-            f"服务端不放行，reason={data.get('reason') or data.get('message') or code}。"
-            "state_machine_run_active 的话等几秒再试，最多三次；仍然被占就告诉人类并停下。",
-        )
+    """一个 session 同时只能有一个自定义协作运行，只认服务端返回的 allowed。
+
+    退避重试放在脚本里，不放在裁判身上：自动开投是被汇总稿的回灌唤醒的，那时发言
+    运行可能刚收尾、槽位还没释放。让模型「等几秒再试一次」等于多烧一个来回，还会
+    在群里多留一段无关文字。
+    """
+    reason: Any = None
+    for attempt in range(RUN_SLOT_RETRIES):
+        code, out, err = bcs_cli("collaborate", "permission", "--session", session_id)
+        data = last_json(out)
+        if data is None:
+            die("PERMISSION_UNREADABLE", f"读不懂 collaborate permission 的返回：{(out or err)[:300]}")
+        if data.get("allowed"):
+            return
+        reason = data.get("reason") or data.get("message") or code
+        if attempt < RUN_SLOT_RETRIES - 1:
+            time.sleep(RUN_SLOT_WAIT_S)
+    die(
+        "RUN_SLOT_BUSY",
+        f"等了 {RUN_SLOT_RETRIES} 次服务端仍不放行，reason={reason}。"
+        "上一个运行还活着，本次什么都没改。回一句还在等谁，结束激活。",
+        waited_seconds=RUN_SLOT_WAIT_S * (RUN_SLOT_RETRIES - 1),
+    )
 
 
 def submit_run(session_id: str, yaml_path: str, input_path: str, bindings: list[str]) -> dict[str, Any]:
@@ -932,13 +1075,31 @@ def cmd_init(args: argparse.Namespace) -> None:
                 {"seat": s["seat"], "player": s["display"], "kind": s["kind"]} for s in seats
             ],
             "human_seat": next(s["seat"] for s in seats if s["kind"] == "human"),
+            "human_word": next(s["word"] for s in seats if s["kind"] == "human"),
             "referee_uuid": referee_uuid,
             "next_action": NEXT_ACTION["AWAIT_START"],
+            "note": "human_word 是**人类玩家自己**那个词，也是全场唯一一个可以说出口的词——"
+            "群聊只有他看得到。发牌时在群里把它念给他（「你是 N 号，你的词是【X】」），"
+            "他忘了随时可以用 my-word 再问一次。别的座位的词一个字都不在这里。",
         }
     )
 
 
 def cmd_status(args: argparse.Namespace) -> None:
+    # 「被唤醒第一件事是 status」这条纪律，在 session 刚启动时本来是必然报错的：
+    # 那时状态文件还不存在，load_state 直接退 2。第一条指令被规定成一条必然失败
+    # 的命令，模型就会转去自己摸索——开局那两次参数写错正是这么来的。
+    if not state_path(args.session).exists():
+        emit(
+            {
+                "phase": "NO_GAME",
+                "session": args.session,
+                "next_action": "这一局还没开牌。先跑 begin 做开局探测（--group 可以省略）。",
+                "command": f"uc begin --session {args.session}",
+            },
+            compact=True,
+        )
+        return
     state = load_state(args.session)
     ping = state["pending_ping"]
     brief = {
@@ -1080,6 +1241,7 @@ def cmd_speeches_set(args: argparse.Namespace) -> None:
                 {
                     "seat": seat,
                     "player": seat_of(state, seat)["display"],
+                    "label": label_of(state, seat),
                     "kind": seat_of(state, seat)["kind"],
                     "text": display,
                     "violation": reason,
@@ -1094,7 +1256,9 @@ def cmd_speeches_set(args: argparse.Namespace) -> None:
             "round": state["round"],
             "speeches": results,
             "next_action": NEXT_ACTION["AWAIT_VOTE_START"],
-            "note": "只使用 text 字段念稿，永远不要使用原始文本。",
+            "note": "只使用 text 字段念稿，永远不要使用原始文本。"
+            "每位玩家用 label 原样称呼（名字带号数）。"
+            "念完不要再等人类说话，这段稿子发出去之后你会被自己这条消息叫醒一次，那次直接 open-vote。",
         }
     )
 
@@ -1207,9 +1371,11 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
                 {
                     "seat": seat,
                     "player": seat_of(state, seat)["display"],
+                    "label": label_of(state, seat),
                     "text": display,
                     "target_seat": target,
                     "target_player": seat_of(state, target)["display"] if target else None,
+                    "target_label": label_of(state, target) if target else None,
                     "violation": reason,
                     "note": note,
                 }
@@ -1260,17 +1426,27 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
             "round": state["round"],
             "votes": results,
             "counts": [
-                {"seat": s, "player": seat_of(state, s)["display"], "votes": c}
+                {
+                    "seat": s,
+                    "player": seat_of(state, s)["display"],
+                    "label": label_of(state, s),
+                    "votes": c,
+                }
                 for s, c in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
             ],
             "tie": tie,
             "eliminated": (
-                {"seat": eliminated, "player": seat_of(state, eliminated)["display"]}
+                {
+                    "seat": eliminated,
+                    "player": seat_of(state, eliminated)["display"],
+                    "label": label_of(state, eliminated),
+                }
                 if eliminated
                 else None
             ),
             "alive": [
-                {"seat": s["seat"], "player": s["display"]} for s in alive_seats(state)
+                {"seat": s["seat"], "player": s["display"], "label": label_of(state, s["seat"])}
+                for s in alive_seats(state)
             ],
             "verdict": verdict,
             "winner": winner,
@@ -1278,10 +1454,22 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
             "ping": ping,
             "next_action": NEXT_ACTION[state["phase"]],
             "note": "只使用 text 字段念稿——它已经规范化成票号，玩家的原话不会给你。"
+            "每位玩家用 label / target_label 原样称呼（名字带号数）。"
             "不要替玩家编造或猜测投票理由。出局者身份不要公布，除非 verdict 是 finished。"
             "tie 为真就是本轮无人出局、直接进下一轮，没有重投这回事。",
         }
     )
+
+
+def history_block(state: dict[str, Any]) -> str:
+    """全场公开发言，逐条带轮次和座位号。写给已出局的玩家看，所以人类那一席叫「人类玩家」。"""
+    lines = []
+    for rnd in public_history(state):
+        for sp in rnd["speeches"]:
+            lines.append(
+                f"第{rnd['round']}轮 {sp['seat']}号 {public_name(state, sp['seat'])}：「{sp['text']}」"
+            )
+    return "\n".join(lines)
 
 
 def cmd_render_ping(args: argparse.Namespace) -> None:
@@ -1290,11 +1478,32 @@ def cmd_render_ping(args: argparse.Namespace) -> None:
     if not ping:
         die("NO_PING", "当前没有待发的遗言或预备任务。")
     if ping["kind"] == "eulogy":
+        # 遗言是整局唯一一条只流向人类玩家的线索通道：Bot 收不到群广播，也看不到
+        # 别人的任务回执，所以出局者的推理只会落到人类眼里，不会污染场上任何一个
+        # Bot 的判断。以前这条任务只说「可以喊冤也可以放狠话」，配 20 字上限，交
+        # 回来的就是「我跟你讲，这票投错人了」——一句纯情绪。现在给素材、规定形状。
+        #
+        # 泄词这条边界要靠措辞守：**不能把它自己的词写进这条任务正文**（forbid_line
+        # 会把词原样拼出来，而这段文字要经过裁判的输出通道流进群里，人类看到出局者
+        # 的词就等于知道了他是不是卧底）。所以只能用不点名的写法，再靠 mask 兜底。
+        living = alive_seats(state)
+        example_seat = living[0]["seat"] if living else ping["seat"]
         message = (
-            f"你在第 {state['round']} 轮被投出局了。\n"
-            "请说一句不超过 20 个字的遗言，可以喊冤也可以放狠话，符合你自己的性格。\n"
-            "不要说出你的词语，也不要说自己是不是卧底。\n"
-            "只输出这一句话，不要任何解释。"
+            f"你在第 {state['round']} 轮被投出局了。按规矩你可以留一句遗言，主持人会念给全场听。\n\n"
+            "到目前为止全场说过的话：\n"
+            f"{history_block(state)}\n\n"
+            f"请说一句遗言，不超过 {EULOGY_MAX_CHARS} 个字，语气还是你自己的性格，"
+            "但必须有内容：挑一个你最怀疑的座位号，说清是他哪句话让你在意——"
+            "把那句话里的关键几个字点出来。\n"
+            # 例子里的号数取一个还活着的座位，免得刚好指到收信人自己头上。
+            f"例：「我最不放心 {example_seat} 号，『一只手拿着刚好』那句，跟前面几位不是一个路子。」\n\n"
+            "三条硬规矩：\n"
+            "1. 不许说出你自己那个词，也不许说它里面连续的两个字、或者把它拆开说全；"
+            "不许用拼音、英文或谐音去指它。\n"
+            "2. 不许说自己是不是卧底，也不许拿自己的词去和别人比——"
+            "「跟我理解的不一样」「我的那个不是这样」这类话一个字都不能出现。"
+            "你只能说别人的话和别人的话之间对不上。\n"
+            "3. 只输出这一句遗言，不要解释、不要前缀。"
         )
     else:
         message = (
@@ -1305,11 +1514,64 @@ def cmd_render_ping(args: argparse.Namespace) -> None:
     emit(
         {
             "kind": ping["kind"],
+            "seat": ping["seat"],
             "target_bot": ping["bot_name"],
             "player": ping["player"],
+            "label": label_of(state, ping["seat"]),
             "message": message,
-            "note": "用 bcs_assign_task 把 message 原样发给 target_bot；它的回执会把你叫醒开下一轮。",
+            "note": "用 bcs_assign_task 把 message 原样发给 target_bot；它的回执会把你叫醒开下一轮。"
+            + (
+                "遗言回执拿到之后先过一道遮蔽再念："
+                f"mask --seat {ping['seat']} --text '它的原话'，只念返回的 text。"
+                "遗言里的怀疑是出局者的个人看法，转述就行，不要附和、不要评价。"
+                if ping["kind"] == "eulogy"
+                else ""
+            ),
         }
+    )
+
+
+def cmd_my_word(args: argparse.Namespace) -> None:
+    """人类玩家忘了自己的词。
+
+    群聊是裁判和人类的私密双人频道，Bot 一个字都看不到，所以这条随时可以答，
+    次数不限。给的永远只有人类自己那一个词。
+    """
+    state = load_state(args.session)
+    human = next((s for s in state["seats"] if s["kind"] == "human"), None)
+    if human is None:
+        die("NO_HUMAN", "这一局没有人类玩家。")
+    emit(
+        {
+            "phase": state["phase"],
+            "human_seat": human["seat"],
+            "human_word": human["word"],
+            "alive": human["alive"],
+            "note": "只说给人类玩家一个人听：「你是 N 号，你的词是【X】」。"
+            "别的座位的词不在这里，也不要去猜。",
+        },
+        compact=True,
+    )
+
+
+def cmd_mask(args: argparse.Namespace) -> None:
+    """把一句自由文本过一道泄词遮蔽。
+
+    发言和投票都走协作节点，裁判在人类看到之前就能遮蔽；遗言不走节点，是公开的
+    任务回执，以前这条路上没有任何机器兜底（文档里那句「唯一拦不住的是遗言」就
+    是指它）。这条命令把同一套判定接到遗言上。
+    """
+    state = load_state(args.session)
+    text, reason = check_text(state, args.seat, args.text, args.max_chars)
+    emit(
+        {
+            "seat": args.seat,
+            "label": label_of(state, args.seat),
+            "text": text,
+            "violation": reason,
+            "note": "只念 text（遮蔽后的版本），永远不要念原话。violation 非空就顺口点一句踩线了。",
+        },
+        compact=True,
     )
 
 
@@ -1524,15 +1786,16 @@ def cmd_parse_vote(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="谁是卧底 · 裁判事实层")
+    parser = JsonArgumentParser(description="谁是卧底 · 裁判事实层")
     sub = parser.add_subparsers(dest="command", required=True)
 
     def with_session(p: argparse.ArgumentParser) -> argparse.ArgumentParser:
-        p.add_argument("--session", required=True)
+        # --session / --group 都不是 required：漏了就自己认（见 resolve_session）。
+        p.add_argument("--session", default=None)
         return p
 
     p = with_session(sub.add_parser("init", help="开一局：抽词、排座位、抽卧底"))
-    p.add_argument("--group", required=True)
+    p.add_argument("--group", default=None)
     p.add_argument("--human", required=True)
     p.add_argument(
         "--referee-uuid",
@@ -1568,7 +1831,7 @@ def main() -> None:
     p.set_defaults(func=cmd_render_vote_run)
 
     p = with_session(sub.add_parser("begin", help="开局探测：人类在不在、有哪些 Bot、init 怎么写"))
-    p.add_argument("--group", required=True)
+    p.add_argument("--group", default=None)
     p.add_argument("--referee-uuid", default=None)
     p.add_argument("--difficulty", default="medium", choices=["easy", "medium", "hard"])
     p.add_argument("--undercover", type=int, default=1)
@@ -1605,7 +1868,20 @@ def main() -> None:
     p.add_argument("--voter", type=int, default=None)
     p.set_defaults(func=cmd_parse_vote)
 
+    with_session(
+        sub.add_parser("my-word", help="人类玩家自己的词（只说给他一个人听）")
+    ).set_defaults(func=cmd_my_word)
+
+    p = with_session(sub.add_parser("mask", help="给一句自由文本（遗言）做泄词遮蔽"))
+    p.add_argument("--seat", type=int, required=True)
+    p.add_argument("--text", required=True)
+    p.add_argument("--max-chars", type=int, default=EULOGY_MAX_CHARS)
+    p.set_defaults(func=cmd_mask)
+
     args = parser.parse_args()
+    args.session = resolve_session(getattr(args, "session", None))
+    if hasattr(args, "group"):
+        args.group = resolve_group(args.group, args.session)
     args.func(args)
 
 

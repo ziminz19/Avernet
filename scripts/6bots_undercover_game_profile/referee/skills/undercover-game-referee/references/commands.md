@@ -1,6 +1,6 @@
 # 脚本命令参考
 
-`scripts/undercover.py` 是本局事实层的全部实现。所有命令都要 `--session`，都输出 JSON，第一个字段是 `ok`。
+`scripts/undercover.py` 是本局事实层的全部实现。所有命令都输出 JSON，第一个字段是 `ok`。
 
 ```bash
 SKILL_DIR="${OPENCLAW_WORKSPACE_DIR:-$PWD}/skills/undercover-game-referee"
@@ -8,6 +8,20 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 ```
 
 失败时 `ok: false`，带 `error` 和 `message`，退出码 2。**看到失败就停下并向人类说明，不要绕过它继续。**
+
+## `--session` 和 `--group` 都可以省
+
+- `--session`：不给就按「环境变量 → 本机唯一的那一局」自己认。不止一局时返回
+  `AMBIGUOUS_SESSION` 并把候选列出来，那时才需要显式传。
+- `--group`：不给就取会话 ID 冒号前面那一段（`bcs_grp_xxxx:yyyy` → `bcs_grp_xxxx`）。
+  只有 `begin` 和 `init` 有这个参数。
+- 参数写错时返回的是脚本自己的 JSON（`error: BAD_ARGS`），里面带 `usage` 和已经认出来
+  的 `detected_session`。**不要为了查参数去跑 `--help`**：想不起来怎么写就照这份文档抄，
+  或者干脆把 `--session` 也省了。
+
+这几条是给「模型在读完文档之前就先抢跑一条命令」兜底的——实测开局连着两次都是这样，
+一次漏了 `--session`、一次漏了 `--group`，两次 argparse 的 usage 转储都被转发进了群里，
+开场白因此晚了半分钟。
 
 **命令的输出也是公开的。** 我的每一次工具调用和它的输出都会被转发成群里的事件，
 所以默认输出都压成了一行、只留必要字段。要详细的再加 `--full`。同理，能一条命令
@@ -28,7 +42,8 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
 | 命令 | 输出里有词吗 |
 | --- | --- |
-| `init` `status` `speeches-set` `votes-set` `parse-vote` `render-ping` `render-vote-watchdog` | **没有**，可以放心引用 |
+| `status` `speeches-set` `votes-set` `parse-vote` `render-ping` `render-vote-watchdog` `mask` | **没有**，可以放心引用 |
+| `init`（`human_word` 字段）`my-word` | 只有**人类玩家自己那个词**，只能说给他一个人听 |
 | `render-speak-run` `render-vote-run` | 只有文件路径，词在文件里，我不读也不贴 |
 | `reveal` | 有，且只有终局才能调 |
 
@@ -37,7 +52,7 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 ### `begin`
 
 ```bash
-uc begin --session S --group G [--difficulty medium] [--undercover 1] [--max-rounds 6]
+uc begin --session S [--group G] [--difficulty medium] [--undercover 1] [--max-rounds 6]
 ```
 
 开局前的全部探测一次做完：人类在不在会话里、是不是 Present、有哪些 Bot 玩家、我自己的
@@ -54,13 +69,16 @@ uc begin --session S --group G [--difficulty medium] [--undercover 1] [--max-rou
 ### `init`
 
 ```bash
-uc init --session S --group G --human human_123 \
+uc init --session S --human human_123 \
   --bot "玩家稳健老陈=uuid1" --bot "玩家话痨小满=uuid2" \
-  [--referee-uuid X] [--difficulty easy|medium|hard] [--undercover 1] [--max-rounds 6] [--force]
+  [--group G] [--referee-uuid X] [--difficulty easy|medium|hard] [--undercover 1] [--max-rounds 6] [--force]
 ```
 
 抽词对、随机座位、随机身份，一次做完。返回 `seating`（座位号 + 名字 + 是不是人类）、`human_seat`、
-`referee_uuid`。同一局重复调会被拒，除非 `--force`。
+`human_word`、`referee_uuid`。同一局重复调会被拒，除非 `--force`。
+
+**`human_word` 是人类玩家自己那个词**，也是全场唯一一个我可以说出口的词：群聊是我和他
+的私密双人频道，Bot 收不到。发牌时念给他一次（S1 第 2 步），别的座位的词脚本不会给我。
 
 `--referee-uuid` 可以不给，脚本自己解析；只有解析不出来时才需要显式传。
 
@@ -68,6 +86,9 @@ uc init --session S --group G --human human_123 \
 
 默认返回压成一行的四件事：`phase`、`round`（"1/6"）、`alive`、`pending_ping`、`next_action`。
 **每次被唤醒的第一件事。**
+
+还没开局时它不报错，返回 `phase: NO_GAME` 和一条现成的 `begin` 命令——所以"被唤醒先
+`status`"这条纪律在 session 刚启动时也成立，不用为它开特例。
 
 `--full` 额外给 `eliminated`、`human_seat`、`renders`、`result`。`renders` 是本轮各运行渲染
 过几次，例如 `{"speak": 1, "vote": 2}` 表示投票重开过一次——只在卡住诊断时需要。
@@ -93,7 +114,12 @@ uc open-round --session S [--retry]
 uc open-vote --session S [--retry]
 ```
 
-同上，外加一个 `watchdog` 字段（内容同 `render-vote-watchdog`）。提交完只剩一件事：
+同上，外加一个 `watchdog` 字段（内容同 `render-vote-watchdog`）。
+
+槽位被占时脚本会自己退避重试三次（自动开投那一刻发言运行可能刚收尾），不用我在外面
+"等几秒再试一次"——每试一次都是一个来回。三次仍被占才返回 `RUN_SLOT_BUSY`。
+
+提交完只剩一件事：
 `watchdog.available` 为真就用 `bcs_assign_task` 把 `watchdog.message` 发给
 `watchdog.target_bot`，然后结束激活。开投稿同样是入口节点的产物，不用我说。
 
@@ -118,7 +144,10 @@ uc speeches-set --session S --json '{"1":"...","2":"..."}' [--flag 3=谈论了�
 
 只能在 `SPEAK_RUNNING` 调。座位号必须和本轮存活名单完全一致。
 
-对每条发言做泄词判定并遮蔽，返回 `speeches[]`：`seat` / `player` / `kind` / `text`（**遮蔽后的可展示文本**）/ `violation`。phase 推到 `AWAIT_VOTE_START`。
+对每条发言做泄词判定并遮蔽，返回 `speeches[]`：`seat` / `player` / `label` / `kind` / `text`（**遮蔽后的可展示文本**）/ `violation`。phase 推到 `AWAIT_VOTE_START`。
+
+**`label` 是念稿用的称呼**（`和事佬阿和（1号）`），每个人第一次出现都要用它。人类在副屏里
+投的是号码、在群里听到的是名字，中间那次映射不该由他来做。
 
 泄词判定三种，和告诉玩家的规则一字不差：说出完整词、说出词里连续两个字、把词拆散了说全。单个常用字命中不算违规。
 
@@ -143,9 +172,9 @@ uc votes-set --session S --json '{"1":"我投3号","2":"我弃权"}'
 
 只能在 `VOTE_RUNNING` 调。一次做完解析、计票、平票规则、出局、胜负判定。返回：
 
-- `votes[]`：`seat` / `player` / `text`（**规范化后的票面**）/ `target_seat` / `target_player` / `violation` / `note`
-- `counts[]`：按票数降序的 `seat` / `player` / `votes`
-- `tie`、`eliminated`、`alive[]`
+- `votes[]`：`seat` / `player` / `label` / `text`（**规范化后的票面**）/ `target_seat` / `target_player` / `target_label` / `violation` / `note`
+- `counts[]`：按票数降序的 `seat` / `player` / `label` / `votes`
+- `tie`、`eliminated`（带 `label`）、`alive[]`（带 `label`）
 - `verdict`：`continue` 或 `finished`；`winner`、`win_reason`
 - `ping`：继续时给出该派谁、派什么类型
 - phase 推到 `AWAIT_NEXT_ROUND` 或 `FINISHED`
@@ -163,14 +192,41 @@ uc votes-set --session S --json '{"1":"我投3号","2":"我弃权"}'
 
 ### `render-ping`
 
-只能在有 `pending_ping` 时调。返回 `kind`（`eulogy` 遗言 / `standby` 预备）、`target_bot`、`message`。
+只能在有 `pending_ping` 时调。返回 `kind`（`eulogy` 遗言 / `standby` 预备）、`seat`、`target_bot`、`label`、`message`。
 用 `bcs_assign_task` 把 `message` 原样发给 `target_bot`。**这条回执是下一轮的唤醒源。**
+
+遗言那条任务里已经带好了全场公开发言当素材，并要求出局者**点一个怀疑的座位号 + 说清是
+他哪句话让自己在意**，同时禁止提自己的词、禁止说自己是不是卧底、禁止拿自己的词去和别人
+比。这不是装饰：遗言是整局唯一一条只流向人类玩家的线索通道（Bot 收不到群广播，也看不到
+别人的任务回执），以前那条"可以喊冤也可以放狠话"的 20 字任务换回来的是一句纯情绪。
+
+回执拿到之后先过 `mask` 再念，见下条。
 
 **不要在开票节点里做这件事。** 开票节点只负责念稿；派唤醒源在开票稿发出去之后的那次
 激活里做（S4b）。判据是 `status` 里 `phase = AWAIT_NEXT_ROUND` 且 `pending_ping` 非空。
 
 派任务只有 `bcs_assign_task` 这一个办法。**不要去查 `bcs --help`，不要用 `bcs chat`**
 ——那是一对一会话，会脱离本局，而且它的回执不是任务回执。
+
+### `my-word`
+
+```bash
+uc my-word --session S
+```
+
+人类玩家忘了自己的词时用。返回 `human_seat` 和 `human_word`，只有他自己那一个词，
+随时可以调、次数不限。**只说给他一个人听**——虽然群聊本来就只有他看得到。
+
+### `mask`
+
+```bash
+uc mask --session S --seat N --text "遗言原话" [--max-chars 35]
+```
+
+把一句自由文本过一道和发言、投票一模一样的泄词判定：返回遮蔽后的 `text` 和 `violation`。
+
+发言和投票都走协作节点，我在人类看到之前就能遮蔽；**遗言不走节点，是公开的任务回执**，
+这条路上以前没有任何机器兜底。念遗言之前先跑这一条，只念返回的 `text`。
 
 ### `render-vote-watchdog`
 
