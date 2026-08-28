@@ -34,7 +34,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-STATE_VERSION = 4
+STATE_VERSION = 5
 
 PHASES = (
     "AWAIT_START",
@@ -51,7 +51,9 @@ NEXT_ACTION = {
     "AWAIT_VOTE_START": "直接开投，不用等人类说话：跑 open-vote。",
     "VOTE_RUNNING": "等投票协作把计票节点派给你；计票节点上调 votes-set。运行超时未回就走卡住诊断。",
     "AWAIT_NEXT_ROUND": "等出局者的遗言回执；收到后 render-speak-run 开下一轮。",
-    "FINISHED": "本局已结束，只能 reveal。想再来一局请新建会话。",
+    "FINISHED": "本局已经结束、真相也公布过了。只说一句「本局已结束，新建会话再来一局」，"
+    "**不要再 reveal、不要 bcs_task_complete、不要调任何脚本**。"
+    "如果你是刚被一个新会话叫醒的，那说明 --session 传错了：新会话应该看到 NO_GAME。",
 }
 
 SPEECH_MAX_CHARS = 25
@@ -130,61 +132,89 @@ def work_dir(session_id: str) -> Path:
     return d
 
 
-def known_states() -> list[tuple[str, Path]]:
-    """(session_id, 状态文件)，最近改动的排在前面。
+# 一局的入口和出口。这几条命令**永远不许**去猜会话：
+#
+#   一个协作群可以连着开好几个会话，每个会话是独立的一局，而状态文件是按 session
+#   落盘的。新会话刚建起来时它还没有自己的状态文件，这时磁盘上「唯一那一局」恰恰
+#   是上一局——2026-08-28 那次就是这么炸的：主持人在新会话里跑了一条不带 --session
+#   的 status，认到上一局的状态、读到 FINISHED，接着 reveal 把上一局的词和身份念进
+#   了新会话，最后还调 bcs_task_complete 把这个刚建的会话关掉了。
+#
+# 认错局的代价在这几条上也最大：status 让主持人以为本局已结束，reveal / my-word 直接
+# 把答案念出来，begin / init 会往错的地方写。所以它们必须显式给 --session。
+SESSION_REQUIRED_COMMANDS = ("status", "begin", "init", "reveal", "my-word")
+
+
+def known_states() -> list[tuple[str, str, Path]]:
+    """(session_id, phase, 状态文件)，最近改动的排在前面。
 
     文件名是把 session_id 里的 ':' 换掉之后的安全名，反推不回来，所以真正的
     session_id 从文件内容里读。
     """
-    out: list[tuple[str, Path]] = []
+    out: list[tuple[str, str, Path]] = []
     for f in game_dir().glob("*.json"):
         if f.name.startswith("."):
             continue
         try:
-            sid = str(json.loads(f.read_text(encoding="utf-8")).get("session_id") or "")
+            data = json.loads(f.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
+        sid = str(data.get("session_id") or "")
         if sid:
-            out.append((sid, f))
-    out.sort(key=lambda item: item[1].stat().st_mtime, reverse=True)
+            out.append((sid, str(data.get("phase") or ""), f))
+    out.sort(key=lambda item: item[2].stat().st_mtime, reverse=True)
     return out
 
 
-def guess_session() -> str | None:
-    """不报错地猜一次本局的 session_id。"""
+def session_from_env() -> str | None:
+    """运行时如果把会话 ID 放进了环境变量，那是权威来源。"""
     for key in ("BCS_SESSION_ID", "BCS_GROUP_SESSION_ID", "OPENCLAW_SESSION_ID", "BCN_SESSION_ID"):
         v = (os.environ.get(key) or "").strip()
-        if v:
+        # 会话 ID 形如 bcs_grp_xxxx:yyyy；不带冒号的多半是群号或别的东西，宁可不要。
+        if v and ":" in v:
             return v
-    states = known_states()
-    if len(states) == 1:
-        return states[0][0]
     return None
 
 
-def resolve_session(explicit: str | None) -> str:
-    """--session 变成可选的。
+def resolve_session(explicit: str | None, command: str) -> str:
+    """把 --session 解析出来。
 
-    模型经常在读完参数说明之前就把第一条命令发出去了——实测开局连着两次都是这样，
-    一次漏了 --session、一次漏了 --group，两次 argparse 的 usage 转储都被转发进了
-    群里。参数能自己认出来的，就不该让模型的手速决定这一局的开场慢多少。
+    分两档，因为「省掉参数」的价值和「认错局」的代价在不同命令上完全不一样：
+
+    - 入口/出口命令（见 SESSION_REQUIRED_COMMANDS）：必须显式给。它们是新会话里
+      第一条会被调用的命令，而新会话恰恰是最容易认错局的时刻。
+    - 中途的命令（open-*、*-set、render-*、mask…）：可以省。它们不可能是一个新会话
+      的第一条命令，而且只会落到**本机唯一一局还没结束的游戏**上；有两局同时在跑
+      就报错让调用方说清楚。这一档保住的是每轮两三个来回——提交类命令必须是激活的
+      最后一个动作，在它前面插一次参数报错，本轮开场就晚一个来回。
     """
     if explicit and explicit.strip():
         return explicit.strip()
-    guess = guess_session()
-    if guess:
-        return guess
-    states = known_states()
-    if len(states) > 1:
+    env = session_from_env()
+    if env:
+        return env
+    if command in SESSION_REQUIRED_COMMANDS:
+        die(
+            "NO_SESSION",
+            f"`{command}` 必须显式给 --session：它是一局的入口/出口，认错局的代价最大。"
+            "会话 ID 在把你叫醒的 GroupContext 里，形如 bcs_grp_xxxx:yyyy——从那里抄，"
+            "不要从别处猜，也不要沿用上一局的。",
+            command=f'uc {command} --session "<GroupContext 里的会话 ID>"',
+        )
+    live = [(sid, phase) for sid, phase, _ in known_states() if phase != "FINISHED"]
+    if len(live) == 1:
+        return live[0][0]
+    if len(live) > 1:
         die(
             "AMBIGUOUS_SESSION",
-            "这台机器上不止一局，认不出你说的是哪一局。把 GroupContext 里的会话 ID 用 --session 传进来。",
-            sessions=[sid for sid, _ in states],
+            "这台机器上不止一局还在进行中，认不出你说的是哪一局。"
+            "把 GroupContext 里的会话 ID 用 --session 传进来。",
+            sessions=[sid for sid, _ in live],
         )
     die(
         "NO_SESSION",
-        "没给 --session，也没能自己认出本局。把 GroupContext 里那个形如 "
-        "bcs_grp_xxxx:yyyy 的会话 ID 用 --session 传进来。",
+        "没给 --session，而且本机没有正在进行中的局。"
+        "把 GroupContext 里那个形如 bcs_grp_xxxx:yyyy 的会话 ID 用 --session 传进来。",
     )
     raise AssertionError("unreachable")
 
@@ -211,10 +241,9 @@ class JsonArgumentParser(argparse.ArgumentParser):
     def error(self, message: str) -> None:  # type: ignore[override]
         die(
             "BAD_ARGS",
-            f"参数不对：{message}。--session 可以整个省掉（脚本自己认本局），"
-            "--group 也可以（从会话 ID 冒号前半段推出来）。",
+            f"参数不对：{message}。`--session` 从 GroupContext 里抄（形如 bcs_grp_xxxx:yyyy）；"
+            "`--group` 可以省，脚本会从会话 ID 冒号前半段推出来。",
             command=(self.prog or "undercover.py").split()[-1],
-            detected_session=guess_session(),
             usage=self.format_usage().strip(),
         )
 
@@ -241,10 +270,20 @@ def load_state(session_id: str) -> dict[str, Any]:
     if not p.exists():
         die("NO_STATE", f"没有找到这一局的状态文件：{p}。如果是新的一局，先跑 init。")
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        state = json.loads(p.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         die("BAD_STATE", f"状态文件无法解析：{exc}。不要凭记忆继续，向人类说明并停下。")
-    raise AssertionError("unreachable")
+        raise AssertionError("unreachable")
+    # 文件名是清洗过的安全名（':' 也会被换掉），所以两个长得像的会话理论上能撞进
+    # 同一个文件。这条自检几乎不花钱，却能把「我操作的是不是这一局」变成硬事实。
+    got = str(state.get("session_id") or "")
+    if got and got != session_id:
+        die(
+            "STATE_SESSION_MISMATCH",
+            f"这个状态文件属于另一局（{got}），不是你要的 {session_id}。"
+            "不要继续，先确认 --session 传对了。",
+        )
+    return state
 
 
 def save_state(state: dict[str, Any]) -> None:
@@ -260,8 +299,16 @@ def save_state(state: dict[str, Any]) -> None:
         raise
 
 
+# 本次进程操作的是哪一局。emit / die 都会把它带出去：认错局这件事必须在群里看得见，
+# 而不是等到主持人念出上一局的答案才被发现。
+CURRENT_SESSION: str | None = None
+
+
 def die(code: str, message: str, **extra: Any) -> None:
-    payload = {"ok": False, "error": code, "message": message, **extra}
+    payload: dict[str, Any] = {"ok": False, "error": code}
+    if CURRENT_SESSION:
+        payload["session"] = CURRENT_SESSION
+    payload.update({"message": message, **extra})
     json.dump(payload, sys.stdout, ensure_ascii=False)
     sys.stdout.write("\n")
     sys.exit(2)
@@ -273,7 +320,10 @@ def emit(payload: dict[str, Any], compact: bool = False) -> None:
     Bot 的每一次工具调用和它的输出都会被转发成群里的事件，所以一条 40 行的状态
     JSON 和一段废话一样占屏。默认输出因此尽量短，详细版只在明确要的时候给。
     """
-    payload = {"ok": True, **payload}
+    head: dict[str, Any] = {"ok": True}
+    if CURRENT_SESSION:
+        head["session"] = CURRENT_SESSION
+    payload = {**head, **payload}
     json.dump(payload, sys.stdout, ensure_ascii=False, indent=None if compact else 2)
     sys.stdout.write("\n")
 
@@ -1093,7 +1143,6 @@ def cmd_status(args: argparse.Namespace) -> None:
         emit(
             {
                 "phase": "NO_GAME",
-                "session": args.session,
                 "next_action": "这一局还没开牌。先跑 begin 做开局探测（--group 可以省略）。",
                 "command": f"uc begin --session {args.session}",
             },
@@ -1109,6 +1158,12 @@ def cmd_status(args: argparse.Namespace) -> None:
         "pending_ping": (ping or {}).get("bot_name"),
         "next_action": NEXT_ACTION.get(state["phase"], "先跑 status"),
     }
+    if state["phase"] == "FINISHED":
+        # 一个新会话永远不该看到 FINISHED——它自己的状态文件还不存在，只会是 NO_GAME。
+        brief["note"] = (
+            "如果你是刚被一个新会话叫醒的，那是认错局了：--session 传的是上一局的 ID。"
+            "同一个协作群里每个会话是独立的一局。"
+        )
     if not args.full:
         emit(brief, compact=True)
         return
@@ -1741,9 +1796,24 @@ def cmd_open_vote(args: argparse.Namespace) -> None:
 
 
 def cmd_reveal(args: argparse.Namespace) -> None:
-    state = load_state(args.session)
-    if state["phase"] != "FINISHED":
-        die("NOT_FINISHED", "本局还没结束，现在不能公布真相。")
+    # 真相只许公布一次。
+    #
+    # 这是「认错局」那条故障链上的最后一道闸：主持人在一个新会话里读到上一局的
+    # FINISHED，接着 reveal，把上一局的词和身份念进了一个还没发牌的会话。会话解析
+    # 那一层已经堵死了这条路，但公布答案是不可撤销的动作，值得再拦一道。
+    with locked(args.session):
+        state = load_state(args.session)
+        if state["phase"] != "FINISHED":
+            die("NOT_FINISHED", "本局还没结束，现在不能公布真相。")
+        if state.get("revealed_at"):
+            die(
+                "ALREADY_REVEALED",
+                f"这一局的真相在 {state['revealed_at']} 已经公布过一次了，不会再公布第二次。"
+                "如果你是刚被一个新会话叫醒的，那说明认错局了——新的一局要先 begin。"
+                "如果终局稿已经发出去了，就别再发一遍。",
+            )
+        state["revealed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        save_state(state)
     emit(
         {
             "winner": state["result"]["winner"],
@@ -1879,7 +1949,9 @@ def main() -> None:
     p.set_defaults(func=cmd_mask)
 
     args = parser.parse_args()
-    args.session = resolve_session(getattr(args, "session", None))
+    global CURRENT_SESSION
+    args.session = resolve_session(getattr(args, "session", None), args.command)
+    CURRENT_SESSION = args.session
     if hasattr(args, "group"):
         args.group = resolve_group(args.group, args.session)
     args.func(args)

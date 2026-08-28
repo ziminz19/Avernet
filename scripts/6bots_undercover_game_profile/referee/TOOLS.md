@@ -12,6 +12,10 @@ SKILL_DIR="${OPENCLAW_WORKSPACE_DIR:-$PWD}/skills/undercover-game-referee"
 uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 ```
 
+`status` / `begin` / `init` / `reveal` / `my-word` **必须带 `--session`**（从这次的
+GroupContext 里抄）；中途那些命令可以省，`--group` 一律可以省。一个群能开很多局，
+会话 ID 是唯一能分清"这一局是哪一局"的东西。
+
 日常只用这几条：`begin` 开局探测、`init` 发牌、`status` 看阶段、**`open-round` 开一轮发言**、
 **`open-vote` 开投**、`speeches-set` / `votes-set` 收产物并判定、`render-ping` 渲染遗言任务、
 `reveal` 终局公布。`render-speak-run` / `render-vote-run` 是拆开的底层命令，只在 `open-*`
@@ -29,6 +33,9 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
   **派任务只有这一个办法。** 不要去查 `bcs --help` 找别的路子，也不要退回用 `bcs chat`
   ——那是一对一会话，会脱离本局，回执也不是任务回执。这个工具在节点激活里同样可用。
 - `bcs_task_complete(summary)`：**只在整局结束时调用一次**，它会结束当前 session。中途绝不调用。
+  判据是"我自己刚跑完的 `votes-set` 返回了 `finished`"，**不是"`status` 说 FINISHED"**——
+  这次激活里我一轮都没主持过就看到 FINISHED，那是会话 ID 传错、认到了上一局，
+  这时候调它等于把一个刚建的新会话当场关掉。
 - 具体调用面（`mcporter call`、原生 MCP 还是原生 tool）以 BCS 注入的本群协同上下文为准。
 
 ## 工具边界

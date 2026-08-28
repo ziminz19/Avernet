@@ -13,15 +13,23 @@ allowed-tools:
 SKILL_DIR="${OPENCLAW_WORKSPACE_DIR:-$PWD}/skills/undercover-game-referee"
 uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
-uc status                       # 每次被唤醒的第一条，没开局也不会报错
+uc status --session "$session_id"   # 每次被唤醒的第一条，没开局也不会报错
 uc begin  --session "$session_id"   # 开局探测（--group 会自己从会话 ID 推出来）
-uc open-round                   # 开一轮发言（提交完立刻结束激活，什么都别说）
+uc open-round                       # 开一轮发言（提交完立刻结束激活，什么都别说）
 ```
 
-**所有命令的 `--session` 和 `--group` 都可以省掉**：脚本按「环境变量 → 本机唯一的那
-一局」自己认。要是这台机器上不止一局，它会明确告诉你把会话 ID 传进来。参数写错时
-返回的也是脚本自己的 JSON（`error: BAD_ARGS`），里面直接给出正确的写法——不要为了
-查参数去跑 `--help`，更不要在没读完这份文档之前先抢跑一条命令试试看。
+**`$session_id` 从把我叫醒的 GroupContext 里抄，一个字都不要改，也绝不沿用上一局的。**
+一个协作群可以连着开好几个会话，**每个会话是完全独立的一局**，磁盘上还留着上一局的
+状态——会话 ID 就是"这一局是哪一局"的唯一凭据。
+
+- `status` / `begin` / `init` / `reveal` / `my-word` **必须带 `--session`**。它们是一局的
+  入口和出口，认错局的代价最大：在新会话里认到上一局，我会以为"本局已结束"，甚至把
+  上一局的答案念出来。
+- 中途那些命令（`open-round` / `open-vote` / `speeches-set` / `votes-set` / `mask`…）可以
+  省，脚本只会落到本机唯一一局还没结束的游戏上。
+- `--group` 一律可以省，脚本从会话 ID 冒号前半段推出来。
+- 参数写错时返回的是脚本自己的 JSON（`error: BAD_ARGS`），里面直接给出正确的写法——
+  不要为了查参数去跑 `--help`，更不要在没读完这份文档之前先抢跑一条命令试试看。
 
 ## 适用条件
 
@@ -101,8 +109,9 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
 每次被唤醒，固定四步：
 
-1. `uc status` 拿到 `phase` 和 `next_action`。还没开局时它返回 `phase: NO_GAME`，
-   不是错误——这一条在任何时候都能安全地跑。
+1. `uc status --session "$session_id"` 拿到 `phase` 和 `next_action`。还没开局时它返回
+   `phase: NO_GAME`，不是错误——这一条在任何时候都能安全地跑。**会话 ID 不能省**，
+   见开头那一节。
 2. 判断这次唤醒属于哪一类（见下表）。
 3. 查 [references/phase-machine.md](references/phase-machine.md) 执行对应的那一步。
 4. 说一段主持稿，结束激活。
@@ -113,7 +122,7 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
 | 特征 | 类型 |
 | --- | --- |
-| 带 session 启动 / GroupContext 上下文，且还没有状态文件 | `SESSION_START` |
+| 带 session 启动 / GroupContext 上下文，且 `uc status` 返回 `NO_GAME` | `SESSION_START` |
 | 发送者是 `human_*` 的群聊消息 | `HUMAN_MSG` |
 | 状态机下发的节点任务（正文以`【主持人节点 · …】`开头） | `NODE_TASK` |
 | 某个 Bot 玩家的任务回执 | `WORKER_MSG` |
@@ -161,6 +170,10 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 - 运行中任一节点最终失败会让整个运行失败，而我作为末节点**不会被唤醒**。所以开场时要告诉人类："超过 5 分钟没动静，回我一句『卡住了』。"投票期间还会额外挂一个看门狗回执当兜底（见 S3），但第一轮没有安全人选，那一轮只有人类这一道兜底。
 - 目前没有取消运行的 CLI 命令。运行本身卡死时本局只能作废，要如实说。但**运行已经失败**是另一回事，那种情况能用 `render-*-run --retry` 重开当前这一轮，见 SX。
 - 同一时刻只支持一个待处理的人类输入节点，所以一轮里人类只有一个输入位。发言和投票分成两个运行，正是因为这个限制。
+- **一个协作群可以开很多个会话，每个会话是独立的一局，但它们共用我这一个 Bot 和同一个
+  状态目录。** 上一局的状态文件不会消失，所以"这一局是哪一局"只能由会话 ID 决定。
+  新会话的第一条 `status` 应该看到 `NO_GAME`；看到 `FINISHED` 就说明会话 ID 传错了，
+  **停下来，别念稿、别 reveal、别结束会话**。
 - 玩家的任务回执是公开的，人类看得到。遗言任务里明确要求不许提词，回执拿到之后还要
   用 `uc mask --seat N --text "原话"` 过一道遮蔽再念——发言和投票走的是同一套判定，
   遗言以前是唯一没接上的那条路。

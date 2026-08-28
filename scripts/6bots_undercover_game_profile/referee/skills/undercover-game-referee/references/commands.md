@@ -9,19 +9,33 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
 失败时 `ok: false`，带 `error` 和 `message`，退出码 2。**看到失败就停下并向人类说明，不要绕过它继续。**
 
-## `--session` 和 `--group` 都可以省
+## `--session` 什么时候必须给
 
-- `--session`：不给就按「环境变量 → 本机唯一的那一局」自己认。不止一局时返回
-  `AMBIGUOUS_SESSION` 并把候选列出来，那时才需要显式传。
-- `--group`：不给就取会话 ID 冒号前面那一段（`bcs_grp_xxxx:yyyy` → `bcs_grp_xxxx`）。
-  只有 `begin` 和 `init` 有这个参数。
-- 参数写错时返回的是脚本自己的 JSON（`error: BAD_ARGS`），里面带 `usage` 和已经认出来
-  的 `detected_session`。**不要为了查参数去跑 `--help`**：想不起来怎么写就照这份文档抄，
-  或者干脆把 `--session` 也省了。
+**一个协作群可以连着开好几个会话，每个会话是独立的一局**，而状态文件是按会话落盘的、
+上一局的不会消失。所以会话 ID 是"这一局是哪一局"的唯一凭据，只能从把我叫醒的
+GroupContext 里抄。
 
-这几条是给「模型在读完文档之前就先抢跑一条命令」兜底的——实测开局连着两次都是这样，
-一次漏了 `--session`、一次漏了 `--group`，两次 argparse 的 usage 转储都被转发进了群里，
-开场白因此晚了半分钟。
+| 命令 | `--session` |
+| --- | --- |
+| `status` `begin` `init` `reveal` `my-word` | **必须给。** 它们是一局的入口和出口，也是新会话里第一条会被调用的命令 |
+| 其余（`open-*`、`*-set`、`render-*`、`mask`、`parse-vote`） | 可以省，脚本只落到**本机唯一一局还没结束**的游戏上；有两局同时在跑就报 `AMBIGUOUS_SESSION` |
+
+`--group` 一律可以省：取会话 ID 冒号前面那一段（`bcs_grp_xxxx:yyyy` → `bcs_grp_xxxx`）。
+只有 `begin` 和 `init` 有这个参数。
+
+参数写错时返回的是脚本自己的 JSON（`error: BAD_ARGS`），里面带 `usage`。
+**不要为了查参数去跑 `--help`**，照这份文档抄就行。
+
+### 这两档为什么不一样
+
+同一个来源的两次事故，方向刚好相反：
+
+- 模型会在读完文档之前就抢跑一条命令——实测开局连着两次，一次漏了 `--session`、一次漏了
+  `--group`，两次 argparse 的 usage 转储都被转发进了群里。所以要能省的尽量省、报错要能直接
+  照着改。
+- 但"省掉会话 ID"在同一个群开第二局时是致命的：新会话还没有自己的状态文件，磁盘上"唯一
+  那一局"恰恰是上一局。实测主持人因此在新会话里读到上一局的 `FINISHED`、`reveal` 出上一局
+  的词和身份、还调 `bcs_task_complete` 把刚建的会话关掉了。所以入口和出口那几条不许猜。
 
 **命令的输出也是公开的。** 我的每一次工具调用和它的输出都会被转发成群里的事件，
 所以默认输出都压成了一行、只留必要字段。要详细的再加 `--full`。同理，能一条命令
@@ -89,6 +103,10 @@ uc init --session S --human human_123 \
 
 还没开局时它不报错，返回 `phase: NO_GAME` 和一条现成的 `begin` 命令——所以"被唤醒先
 `status`"这条纪律在 session 刚启动时也成立，不用为它开特例。
+
+**新会话看到 `FINISHED` 一定是会话 ID 传错了**（新会话没有自己的状态文件，只可能是
+`NO_GAME`）。这种情况下返回里会多一句 `note` 提醒，看到就停下来核对 `--session`，
+不要念稿、不要 `reveal`、不要结束会话。
 
 `--full` 额外给 `eliminated`、`human_seat`、`renders`、`result`。`renders` 是本轮各运行渲染
 过几次，例如 `{"speak": 1, "vote": 2}` 表示投票重开过一次——只在卡住诊断时需要。
@@ -247,7 +265,12 @@ uc render-vote-watchdog --session S
 
 ### `reveal`
 
-只能在 `FINISHED` 调。返回 `winner`、`win_reason`、`words`、每个座位的身份与词、每轮的发言与投票流向。
+只能在 `FINISHED` 调，**而且一局只能调一次**：第二次返回 `ALREADY_REVEALED`。
+返回 `winner`、`win_reason`、`words`、每个座位的身份与词、每轮的发言与投票流向。
+
+公布答案是不可撤销的，所以这里额外上了一道闸：真相已经公布过还想再公布，多半是认错了
+局（在新会话里读到了上一局的状态）。看到 `ALREADY_REVEALED` 就核对 `--session`，
+终局稿已经发过就别再发一遍。
 
 ### `parse-vote`
 

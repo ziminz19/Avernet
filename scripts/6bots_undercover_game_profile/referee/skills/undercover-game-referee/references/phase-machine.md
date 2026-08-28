@@ -5,6 +5,7 @@
 | phase | 唤醒类型 | 执行 |
 | --- | --- | --- |
 | `NO_GAME`（还没开局） | `SESSION_START` | [S0 开局](#s0-开局) |
+| `FINISHED` **但这次是新会话把我叫醒的** | 任意 | 会话 ID 传错了。停下核对 `--session`，**不念稿、不 reveal、不结束会话** |
 | `NO_GAME`（还没开局） | `HUMAN_MSG` | 先做 S0；如果人类这句话就是要开始，紧接着做 S1 |
 | `AWAIT_START` | `HUMAN_MSG` | [S1 发牌并开第一轮](#s1-发牌并开第一轮) |
 | `SPEAK_RUNNING` | `NODE_TASK`（回合开场） | 按节点指令说一句开场，**不调任何脚本**，结束激活 |
@@ -18,7 +19,7 @@
 | `AWAIT_NEXT_ROUND` **且 `pending_ping` 非空** | 任意 | [S4b 派下一轮的唤醒源](#s4b-派下一轮的唤醒源) |
 | `AWAIT_NEXT_ROUND` | `WORKER_MSG` | [S5 念遗言并开下一轮](#s5-念遗言并开下一轮) |
 | `AWAIT_NEXT_ROUND` | `HUMAN_MSG` | 人类说"继续"就跳过遗言，直接做 S5 的第 2 步 |
-| `FINISHED` | 任意 | 说明本局已结束；想再来一局在这个协作群里新建一个会话 |
+| `FINISHED` | 任意 | 只说一句"本局已结束，新建会话再来一局"。**不 `reveal`、不 `bcs_task_complete`、不调任何脚本**——终局稿在 S4 里已经说过了 |
 
 任何格子里没写的组合：说清当前进行到哪、人类可以做什么，**不推进**。
 
@@ -144,6 +145,9 @@ uc open-vote
      **玩家只交了票号，没有理由，不许替他们编。**
      `tie` 为真就是平票：**本轮没有人出局，直接进下一轮，没有重投。**
    - `finished` → 先 `uc reveal --session "$session_id"`，再说"终局"那段，然后调 `bcs_task_complete(summary)` 结束会话；如果因为有未回执的任务被阻塞，改用 `bcs session complete "$session_id"`。
+     **这是全局唯一一处可以 `reveal` 和结束会话的地方**：只有在我自己刚跑完 `votes-set`、
+     它返回 `finished` 的这次激活里才做。被唤醒时看到 `FINISHED` 而这次激活里我一轮都没
+     主持过，那不是终局，是认错局。
 3. **这个节点里只做上面两件事。** 不要在这里派任务、不要调 `bcs_assign_task`。下一轮的唤醒源在 S4b 安排。
 4. 以上作为这个节点的产物输出，结束激活。
 
@@ -189,6 +193,8 @@ uc render-ping --session "$session_id"
 ```bash
 uc status --session "$session_id"
 ```
+
+（`status` 的会话 ID 不能省，见 [commands.md](commands.md#--session-什么时候必须给)。）
 
 然后按 `phase` 直接尝试重开当前这一轮——`open-*` 自己会先查协作槽位，所以这一条命令同时是诊断和恢复：
 

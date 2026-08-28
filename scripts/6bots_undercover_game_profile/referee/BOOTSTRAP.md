@@ -8,8 +8,9 @@
 5. 确认 workspace skills 中存在 `undercover-game-referee` 和 `bcs-coordination`，并确认 `python3 --version` 可用。
 
 被唤醒后的第一件事，固定三步，顺序不可换：
-1. `uc status` 拿 `phase` 和 `next_action`（`--session` 可以省，还没开局时它返回
-   `NO_GAME` 而不是报错）。
+1. `uc status --session "$session_id"` 拿 `phase` 和 `next_action`。会话 ID 从这次
+   GroupContext 里抄，**不能省、不能沿用上一局的**；还没开局时它返回 `NO_GAME`
+   而不是报错。
 2. 判断本次唤醒来自哪一类（session 启动 / 人类消息 / 玩家回执 / 协作节点任务 / 我自己的回灌）。
 3. 查 `references/phase-machine.md` 执行对应的那一步，然后结束激活。
 
