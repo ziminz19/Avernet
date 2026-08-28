@@ -1,83 +1,235 @@
-[90m2026-08-28T10:54:17.764+08:00[39m [36m[gateway][39m [36mloading configuration…[39m
-[90m2026-08-28T10:54:17.801+08:00[39m [36m[gateway][39m [36mresolving authentication…[39m
-[90m2026-08-28T10:54:17.808+08:00[39m [36m[gateway][39m [36mstarting...[39m
-[90m2026-08-28T10:54:18.182+08:00[39m [36m[gateway][39m [36mstarting HTTP server...[39m
-[90m2026-08-28T10:54:18.242+08:00[39m [32m[health-monitor][39m [36mstarted (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)[39m
-2026-08-28T10:54:18.354+08:00 [openclaw-channel-bcn] plugin registered
-2026-08-28T10:54:18.374+08:00 plugin runtime config.loadConfig() is deprecated (runtime-config-load-write); use config.current().
-[90m2026-08-28T10:54:18.501+08:00[39m [36m[gateway][39m [36magent model: openai-compatible/GLM-5.2 (thinking=off, fast=off)[39m
-[90m2026-08-28T10:54:18.502+08:00[39m [36m[gateway][39m [36mhttp server listening (10 plugins: bonjour, browser, canvas, device-pair, file-transfer, memory-core, ollama, openclaw-channel-bcn, phone-control, talk-voice; 0.6s)[39m
-[90m2026-08-28T10:54:18.503+08:00[39m [36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-08-28.log[39m
-[90m2026-08-28T10:54:18.540+08:00[39m [36m[gateway][39m [33msecurity warning: dangerous config flags enabled: gateway.controlUi.dangerouslyDisableDeviceAuth=true. Run `openclaw security audit`.[39m
-[90m2026-08-28T10:54:18.541+08:00[39m [36m[gateway][39m [36mstarting channels and sidecars...[39m
-[90m2026-08-28T10:54:18.585+08:00[39m [33m[hooks][39m [36mloaded 5 internal hook handlers[39m
-[90m2026-08-28T10:54:18.609+08:00[39m [36m[bcs][39m [36mStarting BCS channel (account: default, url: ws://127.0.0.1:21000/ws/bot, bot: 玩家话痨小满)[39m
-[90m2026-08-28T10:54:18.616+08:00[39m [36m[bcs][39m [36mAgent events subscription initialized[39m
-[90m2026-08-28T10:54:18.617+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved dataDir from storePath: /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman[39m
-[90m2026-08-28T10:54:18.619+08:00[39m [36m[bcs][39m [36mConnecting to BCS: ws://127.0.0.1:21000/ws/bot[39m
-[90m2026-08-28T10:54:18.620+08:00[39m [36m[bcs][39m [36mUsing saved session token for reconnection (bot_uuid=玩家话痨小满)[39m
-[90m2026-08-28T10:54:18.621+08:00[39m [36m[bcs][39m [36mWebSocket connecting to ws://127.0.0.1:21000/ws/bot[39m
-[90m2026-08-28T10:54:18.669+08:00[39m [36m[gateway][39m [36mready[39m
-[90m2026-08-28T10:54:18.678+08:00[39m [36m[heartbeat][39m [36mstarted[39m
-[90m2026-08-28T10:54:18.698+08:00[39m [36m[bcs][39m [36mWebSocket TCP handshake succeeded: ws://127.0.0.1:21000/ws/bot[39m
-[90m2026-08-28T10:54:18.699+08:00[39m [36m[bcs][39m [36mUsing bot_id: 玩家话痨小满 (source: config)[39m
-[90m2026-08-28T10:54:18.701+08:00[39m [36m[bcs][39m [36mSending bot.connect (id=000001, bot_id=玩家话痨小满, token=***[39m
-[90m2026-08-28T10:54:18.704+08:00[39m [36m[bcs][39m [36mProtocol version: 2[39m
-[90m2026-08-28T10:54:18.705+08:00[39m [36m[bcs][39m [36mSession saved to /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/.bcs/session.json[39m
-[90m2026-08-28T10:54:18.705+08:00[39m [36m[bcs][39m [36mBot connected: bot_uuid=玩家话痨小满, is_new=false, token=***[39m
-[90m2026-08-28T10:54:18.706+08:00[39m [36m[bcs][39m [36mHeartbeat started (interval=60000ms)[39m
-[90m2026-08-28T10:54:18.707+08:00[39m [36m[bcs][39m [36mConnected to BCS, bot_uuid=玩家话痨小满[39m
-[90m2026-08-28T10:54:21.698+08:00[39m [35m[plugins][39m [33mbonjour: gateway name conflict resolved; newName="U-6W0V9VT0-1823 (OpenClaw) (3)"[39m
-[90m2026-08-28T10:54:21.699+08:00[39m [35m[plugins][39m [33mbonjour: gateway hostname conflict resolved; newHostname="U-6W0V9VT0-1823-(3)"[39m
-[90m2026-08-28T10:54:21.700+08:00[39m [35m[plugins][39m [36mbonjour: advertised gateway fqdn=U-6W0V9VT0-1823 (OpenClaw) (3)._openclaw-gw._tcp.local. host=U-6W0V9VT0-1823-(3).local. port=30821 state=announcing[39m
-2026-08-28T10:54:28.701+08:00 [openclaw-channel-bcn] plugin registered
-[90m2026-08-28T10:54:28.729+08:00[39m [36m[gateway][39m [36magent runtime plugins pre-warmed in 60ms[39m
-[90m2026-08-28T10:58:52.035+08:00[39m [36m[bcs][39m [36mchat.inject from bcs-system-message in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 (observe only): <GroupContext>[39m
+[90m2026-08-28T14:12:14.688+08:00[39m [36m[gateway][39m [36mloading configuration…[39m
+[90m2026-08-28T14:12:14.718+08:00[39m [36m[gateway][39m [36mresolving authentication…[39m
+[90m2026-08-28T14:12:14.725+08:00[39m [36m[gateway][39m [36mstarting...[39m
+[90m2026-08-28T14:12:15.061+08:00[39m [36m[gateway][39m [36mstarting HTTP server...[39m
+[90m2026-08-28T14:12:15.117+08:00[39m [32m[health-monitor][39m [36mstarted (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)[39m
+2026-08-28T14:12:15.214+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:12:15.231+08:00 plugin runtime config.loadConfig() is deprecated (runtime-config-load-write); use config.current().
+[90m2026-08-28T14:12:15.355+08:00[39m [36m[gateway][39m [36magent model: openai-compatible/GLM-5.2 (thinking=off, fast=off)[39m
+[90m2026-08-28T14:12:15.355+08:00[39m [36m[gateway][39m [36mhttp server listening (10 plugins: bonjour, browser, canvas, device-pair, file-transfer, memory-core, ollama, openclaw-channel-bcn, phone-control, talk-voice; 0.5s)[39m
+[90m2026-08-28T14:12:15.356+08:00[39m [36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-08-28.log[39m
+[90m2026-08-28T14:12:15.394+08:00[39m [36m[gateway][39m [33msecurity warning: dangerous config flags enabled: gateway.controlUi.dangerouslyDisableDeviceAuth=true. Run `openclaw security audit`.[39m
+[90m2026-08-28T14:12:15.397+08:00[39m [36m[gateway][39m [36mstarting channels and sidecars...[39m
+[90m2026-08-28T14:12:15.440+08:00[39m [33m[hooks][39m [36mloaded 5 internal hook handlers[39m
+[90m2026-08-28T14:12:15.461+08:00[39m [36m[bcs][39m [36mStarting BCS channel (account: default, url: ws://127.0.0.1:21000/ws/bot, bot: 玩家话痨小满)[39m
+[90m2026-08-28T14:12:15.468+08:00[39m [36m[bcs][39m [36mAgent events subscription initialized[39m
+[90m2026-08-28T14:12:15.469+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved dataDir from storePath: /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman[39m
+[90m2026-08-28T14:12:15.471+08:00[39m [36m[bcs][39m [36mConnecting to BCS: ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T14:12:15.471+08:00[39m [36m[bcs][39m [36mNo saved session found, starting fresh connection[39m
+[90m2026-08-28T14:12:15.472+08:00[39m [36m[bcs][39m [36mWebSocket connecting to ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T14:12:15.524+08:00[39m [36m[gateway][39m [36mready[39m
+[90m2026-08-28T14:12:15.532+08:00[39m [36m[heartbeat][39m [36mstarted[39m
+[90m2026-08-28T14:12:15.556+08:00[39m [36m[bcs][39m [36mWebSocket TCP handshake succeeded: ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T14:12:15.557+08:00[39m [36m[bcs][39m [36mUsing bot_id: 玩家话痨小满 (source: config)[39m
+[90m2026-08-28T14:12:15.559+08:00[39m [36m[bcs][39m [36mSending bot.connect (id=000001, bot_id=玩家话痨小满, token=***[39m
+[90m2026-08-28T14:12:15.562+08:00[39m [36m[bcs][39m [36mProtocol version: 2[39m
+[90m2026-08-28T14:12:15.563+08:00[39m [36m[bcs][39m [36mSession saved to /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/.bcs/session.json[39m
+[90m2026-08-28T14:12:15.564+08:00[39m [36m[bcs][39m [36mBot connected: bot_uuid=玩家话痨小满, is_new=true, token=***[39m
+[90m2026-08-28T14:12:15.565+08:00[39m [36m[bcs][39m [36mHeartbeat started (interval=60000ms)[39m
+[90m2026-08-28T14:12:15.565+08:00[39m [36m[bcs][39m [36mConnected to BCS, bot_uuid=玩家话痨小满[39m
+2026-08-28T14:12:15.647+08:00 (node:20630) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90m2026-08-28T14:12:17.005+08:00[39m [36m[gateway][39m [36mupdate available (latest): v2026.7.1-2 (current v2026.7.1). Run: openclaw --profile undercover-player-xiaoman update[39m
+[90m2026-08-28T14:12:18.524+08:00[39m [35m[plugins][39m [33mbonjour: gateway name conflict resolved; newName="U-6W0V9VT0-1823 (OpenClaw) (3)"[39m
+[90m2026-08-28T14:12:18.525+08:00[39m [35m[plugins][39m [33mbonjour: gateway hostname conflict resolved; newHostname="U-6W0V9VT0-1823-(3)"[39m
+[90m2026-08-28T14:12:18.526+08:00[39m [35m[plugins][39m [36mbonjour: advertised gateway fqdn=U-6W0V9VT0-1823 (OpenClaw) (3)._openclaw-gw._tcp.local. host=U-6W0V9VT0-1823-(3).local. port=30821 state=announcing[39m
+2026-08-28T14:12:25.582+08:00 [openclaw-channel-bcn] plugin registered
+[90m2026-08-28T14:12:25.614+08:00[39m [36m[gateway][39m [36magent runtime plugins pre-warmed in 88ms[39m
+[90m2026-08-28T14:12:30.778+08:00[39m [36m[ws][39m [36mwebchat connected conn=d4336a10-0db9-4630-ac31-8b255506cf34 remote=127.0.0.1 client=openclaw-control-ui webchat vdev[39m
+[90m2026-08-28T14:12:30.902+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.subscribe 99ms conn=d4336a10…cf34 id=f1326359…b26b[39m
+[90m2026-08-28T14:12:30.905+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.messages.subscribe 100ms conn=d4336a10…cf34 id=6f868081…8bc3[39m
+[90m2026-08-28T14:12:30.907+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 103ms conn=d4336a10…cf34 id=dced82fb…d848[39m
+[90m2026-08-28T14:12:30.954+08:00[39m [36m[ws][39m [36m⇄ res ✓ models.authStatus 150ms conn=d4336a10…cf34 id=3d5bed4c…8f58[39m
+[90m2026-08-28T14:12:30.962+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.startup 158ms conn=d4336a10…cf34 id=143e05b0…651f[39m
+[90m2026-08-28T14:12:31.904+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 171ms conn=d4336a10…cf34 id=ca0aeba1…6e71[39m
+[90m2026-08-28T14:13:17.219+08:00[39m [36m[bcs][39m [36mchat.inject from bcs-system-message in bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113 (observe only): <GroupContext>[39m
 [36m当前你在 bcn 群聊中，群聊相关信息如下[39m
 [36m[39m
 [36m## 群聊信息[39m
-[36m* 群组ID: bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b[39m
+[36m* 群组ID: bcs_grp_3d62802c66c34fe698af90268b6eafcf[39m
 [36m* 会话I...[39m
-[90m2026-08-28T10:58:52.063+08:00[39m [36m[bcs][39m [36m[chat.inject] created transcript file: /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/agents/main/sessions/0285cef3-86ee-4ba5-ab92-d0ebde8e4cb8.jsonl[39m
-[90m2026-08-28T10:58:52.879+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.inject 657ms conn=9638c543…7f12 id=inject-f86ea…ad91[39m
-[90m2026-08-28T11:00:33.936+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: [BCS Group Context][39m
+[90m2026-08-28T14:13:17.244+08:00[39m [36m[bcs][39m [36m[chat.inject] created transcript file: /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/agents/main/sessions/9b837389-bce7-4747-b8f4-b35d01d83256.jsonl[39m
+[90m2026-08-28T14:13:17.961+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.inject 657ms conn=fd84deff…c03a id=inject-b20ff…6ea5[39m
+2026-08-28T14:16:16.583+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:16:16.710+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:16:16.729+08:00 [bcs_route] registerTool probe: channel=, sessionKey=agent:main:main, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T14:16:16.732+08:00 [bcs_assign_task] probe: channel=, sessionKey=agent:main:main
+[90m2026-08-28T14:16:16.743+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T14:16:16.744+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T14:16:16.851+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:16:16.872+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T14:16:17.906+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1032 contentType=text/event-stream[39m
+[90m2026-08-28T14:16:18.039+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:16:18.086+08:00[39m [33m[agent/embedded][39m [33mempty response detected: runId=8b3013eb-80b9-464a-b298-ff369fda15ce sessionId=3763ce95-68a1-4417-a927-a41d9dac8171 provider=openai-compatible/GLM-5.2 — retrying 1/1 with visible-answer continuation[39m
+2026-08-28T14:16:18.111+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:16:18.116+08:00 [bcs_route] registerTool probe: channel=, sessionKey=agent:main:main, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T14:16:18.117+08:00 [bcs_assign_task] probe: channel=, sessionKey=agent:main:main
+[90m2026-08-28T14:16:18.120+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T14:16:18.121+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T14:16:18.177+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:16:18.186+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T14:16:20.162+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1973 contentType=text/event-stream[39m
+[90m2026-08-28T14:16:20.300+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:16:20.331+08:00[39m [33m[agent/embedded][39m [33mempty response retries exhausted: runId=8b3013eb-80b9-464a-b298-ff369fda15ce sessionId=3763ce95-68a1-4417-a927-a41d9dac8171 provider=openai-compatible/GLM-5.2 attempts=1/1 — surfacing incomplete-turn error[39m
+[90m2026-08-28T14:16:20.334+08:00[39m [33m[agent/embedded][39m [33mincomplete turn detected: runId=8b3013eb-80b9-464a-b298-ff369fda15ce sessionId=3763ce95-68a1-4417-a927-a41d9dac8171 provider=openai-compatible/GLM-5.2 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=0 replaySafe=yes compactions=0 reasoningRetries=0/2 emptyRetries=1/1 missingAssistantRetries=0/1 — surfacing error to user[39m
+[90m2026-08-28T14:16:20.360+08:00[39m [34m[model-fallback/decision][39m [33mmodel fallback decision: decision=candidate_failed requested=openai-compatible/GLM-5.2 candidate=openai-compatible/GLM-5.2 reason=format next=none detail=⚠️ Agent couldn't generate a response. Please try again.[39m
+[90m2026-08-28T14:16:20.362+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:16:20.365+08:00[39m [36m[bcs][39m [33mNo run context for runId=8b3013eb-80b9-464a-b298-ff369fda15ce, skipping[39m
+[90m2026-08-28T14:17:58.184+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113: [BCS Group Context][39m
 [36m- 参与者: 谁是卧底主持人, 玩家和事佬阿和, 玩家戏精阿浪, 玩家逻辑控林工, 玩家话痨小满, 玩家稳健老陈[39m
 [36m- 你是: 玩家话痨小满[39m
 [36m- 你的角色: wo...[39m
-[90m2026-08-28T11:00:33.938+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:33.939+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
-[90m2026-08-28T11:00:33.944+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
-[90m2026-08-28T11:00:33.945+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
-2026-08-28T11:00:35.417+08:00 [openclaw-channel-bcn] plugin registered
-2026-08-28T11:00:35.433+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
-2026-08-28T11:00:35.436+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 (routingMode=default)
-2026-08-28T11:00:35.437+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
-2026-08-28T11:00:35.437+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"worker"}, BCN_BOT_UUID=undefined
-[90m2026-08-28T11:00:35.442+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
-[90m2026-08-28T11:00:35.443+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
-[90m2026-08-28T11:00:35.902+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:35.915+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0[39m
-[90m2026-08-28T11:00:35.924+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
-2026-08-28T11:00:36.006+08:00 (node:67314) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
-(Use `node --trace-warnings ...` to show where the warning was created)
-[90m2026-08-28T11:00:37.917+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1990 contentType=text/event-stream[39m
-[90m2026-08-28T11:00:38.068+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.093+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.165+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.171+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.255+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, len=20[39m
-[90m2026-08-28T11:00:38.260+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, len=20[39m
-[90m2026-08-28T11:00:38.262+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.292+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0 (source=agent_lifecycle)[39m
-[90m2026-08-28T11:00:38.293+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
-[90m2026-08-28T11:00:38.306+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-speak_1-0[39m
-2026-08-28T11:22:18.780+08:00 [bcs_route] registerTool probe: channel=, sessionKey=agent:main:main, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
-2026-08-28T11:22:18.783+08:00 [bcs_assign_task] probe: channel=, sessionKey=agent:main:main
-[90m2026-08-28T11:22:18.787+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
-[90m2026-08-28T11:22:18.788+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
-[90m2026-08-28T11:22:18.868+08:00[39m [36m[bcs][39m [33mNo run context for runId=437ef43e-8237-48cf-b5a6-1af1ac97c3bf, skipping[39m
-[90m2026-08-28T11:22:18.875+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
-[90m2026-08-28T11:22:19.962+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1086 contentType=text/event-stream[39m
-[90m2026-08-28T11:22:19.996+08:00[39m [36m[bcs][39m [33mNo run context for runId=437ef43e-8237-48cf-b5a6-1af1ac97c3bf, skipping[39m
-[90m2026-08-28T11:22:20.005+08:00[39m [36m[bcs][39m [33mNo run context for runId=437ef43e-8237-48cf-b5a6-1af1ac97c3bf, skipping[39m
-[90m2026-08-28T11:22:20.021+08:00[39m [36m[bcs][39m [33mNo run context for runId=437ef43e-8237-48cf-b5a6-1af1ac97c3bf, skipping[39m
+[90m2026-08-28T14:17:58.185+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:17:58.187+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113, agentId=main[39m
+[90m2026-08-28T14:17:58.191+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T14:17:58.192+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T14:17:59.260+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:17:59.272+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T14:17:59.273+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113 (routingMode=default)
+2026-08-28T14:17:59.274+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113
+2026-08-28T14:17:59.275+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"worker"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T14:17:59.277+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T14:17:59.278+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T14:17:59.669+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:18:00.020+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:00.023+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T14:18:02.227+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2200 contentType=text/event-stream[39m
+[90m2026-08-28T14:18:06.025+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:12.026+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:18.027+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:24.026+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:30.027+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:36.027+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:42.028+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:48.028+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:18:54.031+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:00.031+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:05.329+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 74ms conn=d4336a10…cf34 id=8a400078…aff8[39m
+[90m2026-08-28T14:19:05.333+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 78ms conn=d4336a10…cf34 id=483d9cd9…e973[39m
+[90m2026-08-28T14:19:05.574+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 239ms conn=d4336a10…cf34 id=b6706351…62d5[39m
+[90m2026-08-28T14:19:05.578+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 244ms conn=d4336a10…cf34 id=3b55925c…742f[39m
+[90m2026-08-28T14:19:05.581+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 247ms conn=d4336a10…cf34 id=88a6cd56…d75e[39m
+[90m2026-08-28T14:19:05.587+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 332ms conn=d4336a10…cf34 id=ecae8e6d…b2c8[39m
+[90m2026-08-28T14:19:06.031+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:07.611+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 52ms conn=d4336a10…cf34 id=0474f495…6121[39m
+[90m2026-08-28T14:19:08.246+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 50ms conn=d4336a10…cf34 id=586de6f5…0458[39m
+[90m2026-08-28T14:19:08.443+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 194ms conn=d4336a10…cf34 id=449a9381…f0a7[39m
+[90m2026-08-28T14:19:08.445+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 197ms conn=d4336a10…cf34 id=4455d060…cad2[39m
+[90m2026-08-28T14:19:12.032+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:15.286+08:00[39m [36m[ws][39m [36mwebchat disconnected code=1001 reason=n/a conn=d4336a10-0db9-4630-ac31-8b255506cf34[39m
+[90m2026-08-28T14:19:15.409+08:00[39m [36m[ws][39m [36mwebchat connected conn=88a9e9a1-5383-4ec7-9598-95d06faaabd0 remote=127.0.0.1 client=openclaw-control-ui webchat vdev[39m
+[90m2026-08-28T14:19:15.616+08:00[39m [36m[ws][39m [36m⇄ res ✓ config.get 182ms conn=88a9e9a1…abd0 id=73c592ff…6a0c[39m
+[90m2026-08-28T14:19:15.836+08:00[39m [36m[ws][39m [36m⇄ res ✓ models.authStatus 214ms conn=88a9e9a1…abd0 id=7de56566…9271[39m
+[90m2026-08-28T14:19:15.837+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 216ms conn=88a9e9a1…abd0 id=f9fde577…68eb[39m
+[90m2026-08-28T14:19:15.838+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 217ms conn=88a9e9a1…abd0 id=0790a9d9…04c3[39m
+[90m2026-08-28T14:19:15.840+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.messages.subscribe 218ms conn=88a9e9a1…abd0 id=095725af…f03e[39m
+[90m2026-08-28T14:19:15.842+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 221ms conn=88a9e9a1…abd0 id=df7d5669…cb5c[39m
+[90m2026-08-28T14:19:15.843+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.messages.subscribe 222ms conn=88a9e9a1…abd0 id=0aee9b05…53c9[39m
+[90m2026-08-28T14:19:16.082+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 461ms conn=88a9e9a1…abd0 id=a015ee9a…1b6e[39m
+[90m2026-08-28T14:19:16.084+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 464ms conn=88a9e9a1…abd0 id=ecebdf03…5111[39m
+[90m2026-08-28T14:19:16.085+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 465ms conn=88a9e9a1…abd0 id=b42ecca2…0de4[39m
+[90m2026-08-28T14:19:16.092+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.startup 471ms conn=88a9e9a1…abd0 id=7b6ddef5…1eaf[39m
+[90m2026-08-28T14:19:16.095+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 474ms conn=88a9e9a1…abd0 id=b2a0a8a0…a9d1[39m
+[90m2026-08-28T14:19:16.124+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 502ms conn=88a9e9a1…abd0 id=745ce36b…25ca[39m
+[90m2026-08-28T14:19:17.536+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 66ms conn=88a9e9a1…abd0 id=e58601c7…4e0d[39m
+[90m2026-08-28T14:19:18.031+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:18.103+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 56ms conn=88a9e9a1…abd0 id=f58ceac3…689a[39m
+[90m2026-08-28T14:19:18.302+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 197ms conn=88a9e9a1…abd0 id=104a2984…92d0[39m
+[90m2026-08-28T14:19:18.305+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 200ms conn=88a9e9a1…abd0 id=4814d49d…237b[39m
+[90m2026-08-28T14:19:24.034+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:30.034+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:36.036+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:42.035+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:48.037+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:19:54.038+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:00.037+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:04.280+08:00[39m [33m[agent/embedded][39m [33membedded abort settle timed out: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0 sessionId=9b837389-bce7-4747-b8f4-b35d01d83256 timeoutMs=2000[39m
+[90m2026-08-28T14:20:04.289+08:00[39m [33m[agent/embedded][39m [33m[llm-idle-timeout] openai-compatible/GLM-5.2 produced no reply before the idle watchdog; retrying same model[39m
+2026-08-28T14:20:04.686+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T14:20:04.690+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T14:20:04.691+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113 (routingMode=default)
+2026-08-28T14:20:04.692+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113
+2026-08-28T14:20:04.693+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"worker"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T14:20:04.695+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T14:20:04.696+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T14:20:05.105+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 199ms conn=88a9e9a1…abd0 id=31b511fc…b600[39m
+[90m2026-08-28T14:20:05.507+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:20:06.054+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:06.057+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 186ms conn=88a9e9a1…abd0 id=7175eb29…06b8[39m
+[90m2026-08-28T14:20:06.062+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T14:20:07.734+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1670 contentType=text/event-stream[39m
+[90m2026-08-28T14:20:12.058+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:18.059+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:24.059+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:30.057+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:36.058+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:42.063+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:48.058+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:20:54.062+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:21:00.059+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:21:01.502+08:00[39m [36m[ws][39m [36mwebchat disconnected code=1001 reason=n/a conn=88a9e9a1-5383-4ec7-9598-95d06faaabd0[39m
+[90m2026-08-28T14:21:01.533+08:00[39m [36m[ws][39m [36mwebchat connected conn=679a8c2a-8ce5-4633-93db-e8fdc0468183 remote=127.0.0.1 client=openclaw-control-ui webchat vdev[39m
+[90m2026-08-28T14:21:01.782+08:00[39m [36m[ws][39m [36m⇄ res ✓ models.authStatus 216ms conn=679a8c2a…8183 id=95b59239…a866[39m
+[90m2026-08-28T14:21:01.784+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 218ms conn=679a8c2a…8183 id=f251033e…2d66[39m
+[90m2026-08-28T14:21:01.823+08:00[39m [36m[ws][39m [36m⇄ res ✓ config.get 256ms conn=679a8c2a…8183 id=d28bb67d…0180[39m
+[90m2026-08-28T14:21:01.831+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.startup 264ms conn=679a8c2a…8183 id=1722ad43…7611[39m
+[90m2026-08-28T14:21:06.060+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:21:09.514+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:09.556+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:09.618+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:09.675+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:09.915+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, len=15[39m
+[90m2026-08-28T14:21:09.916+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, len=15[39m
+[90m2026-08-28T14:21:09.917+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:09.928+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0 (source=agent_lifecycle)[39m
+[90m2026-08-28T14:21:09.929+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:21:10.360+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 206ms conn=679a8c2a…8183 id=5fa8f59b…40f7[39m
+[90m2026-08-28T14:21:10.364+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-ada566d9-6f33-4ed6-958d-340f642792f2-speak_3-0[39m
+[90m2026-08-28T14:26:23.921+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113: [BCS Group Context][39m
+[36m- 参与者: 谁是卧底主持人, 玩家和事佬阿和, 玩家戏精阿浪, 玩家逻辑控林工, 玩家话痨小满, 玩家稳健老陈[39m
+[36m- 你是: 玩家话痨小满[39m
+[36m- 你的角色: wo...[39m
+[90m2026-08-28T14:26:23.924+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:23.926+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-player-xiaoman/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113, agentId=main[39m
+[90m2026-08-28T14:26:23.933+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T14:26:23.934+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T14:26:25.973+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T14:26:25.974+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113 (routingMode=default)
+2026-08-28T14:26:25.976+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113
+2026-08-28T14:26:25.977+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"worker"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T14:26:25.980+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T14:26:25.981+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T14:26:26.833+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:26.840+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:26:26.847+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T14:26:27.138+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 288ms conn=679a8c2a…8183 id=23c26e33…f116[39m
+[90m2026-08-28T14:26:27.141+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 291ms conn=679a8c2a…8183 id=da05cb0b…12e4[39m
+[90m2026-08-28T14:26:29.416+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2567 contentType=text/event-stream[39m
+[90m2026-08-28T14:26:32.849+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:26:33.620+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 72ms conn=679a8c2a…8183 id=5cbaf2ec…66aa[39m
+[90m2026-08-28T14:26:33.623+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 77ms conn=679a8c2a…8183 id=0b4a70cf…503e[39m
+[90m2026-08-28T14:26:33.628+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 80ms conn=679a8c2a…8183 id=c036caac…c93d[39m
+[90m2026-08-28T14:26:34.964+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 265ms conn=679a8c2a…8183 id=b17a0ba4…4a9c[39m
+[90m2026-08-28T14:26:34.967+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 268ms conn=679a8c2a…8183 id=fc496dc6…c5ad[39m
+[90m2026-08-28T14:26:34.972+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 273ms conn=679a8c2a…8183 id=93685b2a…f212[39m
+[90m2026-08-28T14:26:38.848+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:26:44.848+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:26:50.848+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:26:51.939+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:51.999+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, stream=assistant, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:52.019+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, len=4[39m
+[90m2026-08-28T14:26:52.024+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, len=4[39m
+[90m2026-08-28T14:26:52.027+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:52.055+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0 (source=agent_lifecycle)[39m
+[90m2026-08-28T14:26:52.057+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0, stream=lifecycle, groupId=bcs_grp_3d62802c66c34fe698af90268b6eafcf:0d520113[39m
+[90m2026-08-28T14:26:52.276+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 209ms conn=679a8c2a…8183 id=ff5718cf…8078[39m
+[90m2026-08-28T14:26:52.278+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-bfcfa746-0546-417d-97ee-342026153cdc-vote_3-0[39m
+[90m2026-08-28T14:32:14.949+08:00[39m [36m[gateway][39m [36msignal SIGTERM received[39m
+[90m2026-08-28T14:32:14.952+08:00[39m [36m[gateway][39m [36mreceived SIGTERM; shutting down[39m
+[90m2026-08-28T14:32:14.984+08:00[39m [33m[shutdown][39m [36mstarted: gateway stopping[39m
+[90m2026-08-28T14:32:15.190+08:00[39m [36m[bcs][39m [36mStopping BCS channel (account: default)[39m
+[90m2026-08-28T14:32:15.192+08:00[39m [36m[bcs][39m [36mDisconnected from BCS[39m
+[90m2026-08-28T14:32:15.192+08:00[39m [36m[bcs][39m [36maccount default stopped[39m
+[90m2026-08-28T14:32:15.208+08:00[39m [34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+[90m2026-08-28T14:32:15.215+08:00[39m [36m[ws][39m [36mwebchat disconnected code=1012 reason=service restart conn=679a8c2a-8ce5-4633-93db-e8fdc0468183[39m
+[90m2026-08-28T14:32:15.246+08:00[39m [33m[shutdown][39m [36mcompleted cleanly in 264ms[39m
