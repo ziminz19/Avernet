@@ -24,7 +24,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-STATE_VERSION = 2
+STATE_VERSION = 3
 
 PHASES = (
     "AWAIT_START",
@@ -39,7 +39,7 @@ NEXT_ACTION = {
     "AWAIT_START": "等人类回一句就开局：先 render-speak-run，再提交发言协作。",
     "SPEAK_RUNNING": "等发言协作把汇总节点派给你；拿到全部发言后调 speeches-set。",
     "AWAIT_VOTE_START": "等人类说一声开投；然后 render-vote-run 并提交投票协作。",
-    "VOTE_RUNNING": "等投票协作把须知节点和计票节点派给你；计票节点上调 votes-set。",
+    "VOTE_RUNNING": "等投票协作把计票节点派给你；计票节点上调 votes-set。运行超时未回就走卡住诊断。",
     "AWAIT_NEXT_ROUND": "等出局者的遗言回执；收到后 render-speak-run 开下一轮。",
     "FINISHED": "本局已结束，只能 reveal。想再来一局请新建会话。",
 }
@@ -47,6 +47,23 @@ NEXT_ACTION = {
 SPEECH_MAX_CHARS = 25
 VOTE_MAX_CHARS = 40
 MASK = "○"
+
+# 节点超时与重试。
+#
+# Bot 的会话通道是串行的：同一时刻只跑一个激活，其余排队。通道偶尔会在一次激活
+# 结束后没有及时释放，节点任务就会一直排在队里不动，直到 Bot 侧的自愈把通道抢
+# 回来——那个自愈窗口是分钟级的。所以节点超时必须明显大于它，否则 BCS 先判超时、
+# 自愈后到，节点产物变成没人认领的孤儿。
+#
+# max_attempts 固定为 1：重试对「通道堵住」这类故障毫无作用，只会让同一个节点排
+# 两份，排空时还可能逆序执行，在群里留下重复播报和空回复。真正的瞬时失败由 Bot
+# 侧自己重试。
+BOT_NODE_TIMEOUT_MS = 420_000
+# 裁判的通道最挤：人类的自由聊天、节点任务、以及它自己 final_output 的回灌都走
+# 这一条，所以派给裁判的节点额外放宽。入口节点撞车时被牵连的那个投票节点同理。
+CONTENDED_NODE_TIMEOUT_MS = 600_000
+HUMAN_NODE_TIMEOUT_MS = 900_000
+NODE_MAX_ATTEMPTS = 1
 
 DEFAULT_CONFIG = {
     "players": 6,
@@ -350,7 +367,7 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"      {nid}:\n"
                 f"        kind: human_input\n"
                 f"        display_name: {yq(str(s['seat']) + '号发言')}\n"
-                f"        node_timeout_ms: 900000\n"
+                f"        node_timeout_ms: {HUMAN_NODE_TIMEOUT_MS}\n"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
                 f"          complete:\n"
@@ -394,6 +411,7 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "        assignee:\n"
         "          type: bot_binding\n"
         "          binding: referee\n"
+        f"        node_timeout_ms: {CONTENDED_NODE_TIMEOUT_MS}\n"
         "        final_output: true\n"
         f"        instruction: |\n{block(collect_instruction, 10)}"
     )
@@ -409,8 +427,8 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "    version: 1\n"
         "    graph_mode: acyclic\n"
         "    defaults:\n"
-        "      node_timeout_ms: 180000\n"
-        "      max_attempts: 2\n"
+        f"      node_timeout_ms: {BOT_NODE_TIMEOUT_MS}\n"
+        f"      max_attempts: {NODE_MAX_ATTEMPTS}\n"
         "    nodes:\n" + "\n".join(nodes) + "\n"
     )
     bindings = [f"{s['binding']}={s['bot_uuid']}" for s in living if s["kind"] == "bot"]
@@ -418,11 +436,31 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
     return yaml_text, bindings
 
 
+def vote_gate_seat(living: list[dict[str, Any]]) -> dict[str, Any]:
+    """挑一个 Bot 来当投票运行的零入度入口节点。
+
+    绝对不能是裁判。入口节点在运行提交的那一刻就被派出去，而裁判正卡在提交它的
+    那次激活里——节点会排在自己后面，等自己让出通道。一旦通道没及时释放，这个
+    节点就永远等不到，整个运行随它一起超时失败。
+
+    用第一位存活 Bot。已出局玩家的通道虽然更空，但那条通道要留给看门狗任务
+    （见 cmd_render_vote_watchdog），两个都往那儿塞就是换个地方再犯一次同样的错。
+    代价是入口节点结束的瞬间，它自己的投票节点会派回同一条通道——那个窗口只有
+    零点几秒，用 CONTENDED_NODE_TIMEOUT_MS 兜住。
+    """
+    for s in living:
+        if s["kind"] == "bot":
+            return s
+    die("NO_BOT_GATE", "场上没有可用的 Bot 来当投票运行的入口节点，这一轮投票开不了。")
+    raise AssertionError("unreachable")
+
+
 def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
     rnd = state["round"]
     living = sorted(alive_seats(state), key=lambda s: s["seat"])
     node_ids = [f"vote_{s['seat']}" for s in living]
     seat_list = "、".join(f"{s['seat']}号 {s['display']}" for s in living)
+    gate = vote_gate_seat(living)
 
     participants = []
     for s in living:
@@ -434,18 +472,21 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             )
     participants.append('  referee:\n    display_name: "主持人"\n    required: true')
 
+    # 入口节点的产物会作为 [Upstream Outputs] 流给每一个投票节点，所以它必须是
+    # 一个固定的、零信息量的 token——不能让它捎带任何关于牌面的东西。
     open_instruction = (
-        "【裁判节点 · 投票须知】\n"
-        f"这是第 {rnd} 轮投票的开场节点。只输出一句话：本轮投票开始，请各位根据全部发言投票。\n"
-        "不要复述发言，不要点评，不要透露任何词语或身份，不要超过 30 个字。"
+        "【开场节点】\n"
+        f"第 {rnd} 轮投票现在开始。这个节点只是运行的入口，你在这里不需要做任何判断。\n"
+        "只输出两个字：开始\n"
+        "不要输出别的任何内容，不要提到任何玩家、词语、发言或投票倾向。"
     )
     nodes = [
         "      vote_open:\n"
         "        kind: bot_task\n"
-        '        display_name: "投票须知"\n'
+        '        display_name: "投票开场"\n'
         "        assignee:\n"
         "          type: bot_binding\n"
-        "          binding: referee\n"
+        f"          binding: {gate['binding']}\n"
         f"        instruction: |\n{block(open_instruction, 10)}\n"
         "        transitions:\n"
         "          complete:\n"
@@ -469,7 +510,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"      {nid}:\n"
                 f"        kind: human_input\n"
                 f"        display_name: {yq(str(s['seat']) + '号投票')}\n"
-                f"        node_timeout_ms: 900000\n"
+                f"        node_timeout_ms: {HUMAN_NODE_TIMEOUT_MS}\n"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
                 f"          complete:\n"
@@ -488,6 +529,13 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 "不要提「卧底」「平民」「身份」，不要输出编号列表、JSON 或解释。\n"
                 "确实无法判断时，写「我弃权」加一句原因。"
             )
+            # 入口节点那位刚在同一条通道上跑完 vote_open，投票节点会在它结束的
+            # 瞬间派回来，是全场唯一一个可能撞上通道未释放的玩家节点。
+            timeout_line = (
+                f"        node_timeout_ms: {CONTENDED_NODE_TIMEOUT_MS}\n"
+                if s["seat"] == gate["seat"]
+                else ""
+            )
             nodes.append(
                 f"      {nid}:\n"
                 f"        kind: bot_task\n"
@@ -495,6 +543,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"        assignee:\n"
                 f"          type: bot_binding\n"
                 f"          binding: {s['binding']}\n"
+                f"{timeout_line}"
                 f"        instruction: |\n{block(instruction, 10)}\n"
                 f"        transitions:\n"
                 f"          complete:\n"
@@ -517,6 +566,7 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "        assignee:\n"
         "          type: bot_binding\n"
         "          binding: referee\n"
+        f"        node_timeout_ms: {CONTENDED_NODE_TIMEOUT_MS}\n"
         "        final_output: true\n"
         f"        instruction: |\n{block(tally_instruction, 10)}"
     )
@@ -532,8 +582,8 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "    version: 1\n"
         "    graph_mode: acyclic\n"
         "    defaults:\n"
-        "      node_timeout_ms: 180000\n"
-        "      max_attempts: 2\n"
+        f"      node_timeout_ms: {BOT_NODE_TIMEOUT_MS}\n"
+        f"      max_attempts: {NODE_MAX_ATTEMPTS}\n"
         "    nodes:\n" + "\n".join(nodes) + "\n"
     )
     bindings = [f"{s['binding']}={s['bot_uuid']}" for s in living if s["kind"] == "bot"]
@@ -686,31 +736,58 @@ def cmd_status(args: argparse.Namespace) -> None:
             "human_seat": next(s["seat"] for s in state["seats"] if s["kind"] == "human"),
             "pending_ping": state["pending_ping"],
             "consecutive_ties": state["consecutive_ties"],
+            "renders": (state["rounds"][-1].get("renders", {}) if state["rounds"] else {}),
             "result": state["result"],
             "next_action": NEXT_ACTION.get(state["phase"], "先跑 status"),
         }
     )
 
 
+def bump_render(state: dict[str, Any], kind: str) -> int:
+    """记下这一轮的某个运行渲染到第几次，并返回次数。第一次是 1。"""
+    renders = current_round(state).setdefault("renders", {})
+    renders[kind] = renders.get(kind, 0) + 1
+    return renders[kind]
+
+
+def run_file_kind(kind: str, rnd: int, attempt: int) -> str:
+    return f"{kind}-r{rnd}" if attempt <= 1 else f"{kind}-r{rnd}-retry{attempt - 1}"
+
+
 def cmd_render_speak_run(args: argparse.Namespace) -> None:
     with locked(args.session):
         state = load_state(args.session)
-        require_phase(state, "AWAIT_START", "AWAIT_NEXT_ROUND")
-        state["round"] += 1
-        state["pending_ping"] = None
+        if args.retry:
+            # 重开当前这一轮：上一次提交的运行失败了，而运行失败不会唤醒裁判。
+            # 轮次不推进、本轮记录不重建，只把同一份 YAML 重新渲染一次。
+            require_phase(state, "SPEAK_RUNNING")
+            if current_round(state)["speeches"]:
+                die(
+                    "ALREADY_SPOKEN",
+                    "本轮发言已经收齐落盘了，不能重开发言运行。"
+                    "如果卡住的是投票，用 render-vote-run --retry。",
+                )
+        else:
+            require_phase(state, "AWAIT_START", "AWAIT_NEXT_ROUND")
+            state["round"] += 1
+            state["pending_ping"] = None
+            state["rounds"].append(
+                {
+                    "round": state["round"],
+                    "order": [
+                        s["seat"] for s in sorted(alive_seats(state), key=lambda s: s["seat"])
+                    ],
+                    "speeches": {},
+                    "votes": {},
+                    "counts": {},
+                    "eliminated": None,
+                    "tie": False,
+                    "renders": {},
+                }
+            )
         living = sorted(alive_seats(state), key=lambda s: s["seat"])
-        state["rounds"].append(
-            {
-                "round": state["round"],
-                "order": [s["seat"] for s in living],
-                "speeches": {},
-                "votes": {},
-                "counts": {},
-                "eliminated": None,
-                "tie": False,
-            }
-        )
         state["phase"] = "SPEAK_RUNNING"
+        attempt = bump_render(state, "speak")
         yaml_text, bindings = render_speak_yaml(state)
         run_input = {
             "game": "谁是卧底",
@@ -719,13 +796,16 @@ def cmd_render_speak_run(args: argparse.Namespace) -> None:
             "history": public_history(state),
             "rule": f"用一句话（不超过{SPEECH_MAX_CHARS}字）描述你的词语，不得说出词本身，也不得拆开说",
         }
-        yaml_path, input_path = write_run_files(args.session, f"speak-r{state['round']}", yaml_text, run_input)
+        yaml_path, input_path = write_run_files(
+            args.session, run_file_kind("speak", state["round"], attempt), yaml_text, run_input
+        )
         save_state(state)
 
     emit(
         {
             "phase": "SPEAK_RUNNING",
             "round": state["round"],
+            "attempt": attempt,
             "yaml_path": yaml_path,
             "input_path": input_path,
             "bindings": bindings,
@@ -790,8 +870,14 @@ def cmd_speeches_set(args: argparse.Namespace) -> None:
 def cmd_render_vote_run(args: argparse.Namespace) -> None:
     with locked(args.session):
         state = load_state(args.session)
-        require_phase(state, "AWAIT_VOTE_START")
+        if args.retry:
+            # 投票运行失败不会唤醒裁判，phase 却已经推到 VOTE_RUNNING 了。
+            # 没有这条路，卡住诊断走到重开那一步就会被阶段卫兵拦死。
+            require_phase(state, "VOTE_RUNNING")
+        else:
+            require_phase(state, "AWAIT_VOTE_START")
         state["phase"] = "VOTE_RUNNING"
+        attempt = bump_render(state, "vote")
         yaml_text, bindings = render_vote_yaml(state)
         living = sorted(alive_seats(state), key=lambda s: s["seat"])
         run_input = {
@@ -802,13 +888,16 @@ def cmd_render_vote_run(args: argparse.Namespace) -> None:
             "history": public_history(state),
             "rule": "根据全部发言投出你认为词语和大家不一样的人，不能投自己",
         }
-        yaml_path, input_path = write_run_files(args.session, f"vote-r{state['round']}", yaml_text, run_input)
+        yaml_path, input_path = write_run_files(
+            args.session, run_file_kind("vote", state["round"], attempt), yaml_text, run_input
+        )
         save_state(state)
 
     emit(
         {
             "phase": "VOTE_RUNNING",
             "round": state["round"],
+            "attempt": attempt,
             "yaml_path": yaml_path,
             "input_path": input_path,
             "bindings": bindings,
@@ -816,7 +905,8 @@ def cmd_render_vote_run(args: argparse.Namespace) -> None:
             "voters": [
                 {"seat": s["seat"], "player": s["display"], "kind": s["kind"]} for s in living
             ],
-            "note": "YAML 里含词语，不要读它、不要贴它，直接交给 bcs collaborate run。",
+            "note": "YAML 里含词语，不要读它、不要贴它，直接交给 bcs collaborate run。"
+            + ("" if attempt <= 1 else " 这是本轮第 %d 次开投，要向人类说明之前的票作废。" % attempt),
         }
     )
 
@@ -979,6 +1069,51 @@ def cmd_render_ping(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_render_vote_watchdog(args: argparse.Namespace) -> None:
+    """渲染一条不依赖人类的兜底唤醒任务。
+
+    投票运行失败时裁判不会被唤醒，唯一的兜底是人类主动喊「卡住了」。这条任务派给
+    一个**已出局**的 Bot：它在本轮投票运行里没有任何节点，通道整场空着，多这一条
+    消息不会和它自己的投票节点抢通道。它的回执会把裁判叫醒，裁判醒来先查 status
+    和 permission，发现运行已经失败就直接重开。
+
+    第一轮没有出局者，所以没有安全的看门狗人选——那一轮只能靠人类兜底，主持稿里
+    必须把时限说清楚。绝不退回给存活玩家：那等于故意在别人的通道里塞第二件事，
+    也正是入口节点不挑已出局玩家、把这条通道整个让出来的原因。
+    """
+    state = load_state(args.session)
+    require_phase(state, "VOTE_RUNNING")
+    dead_bots = [
+        s for s in state["seats"] if s["kind"] == "bot" and not s["alive"] and s["bot_name"]
+    ]
+    if not dead_bots:
+        emit(
+            {
+                "available": False,
+                "reason": "场上还没有出局的 Bot，这一轮没有安全的看门狗人选。",
+                "note": "不要改派给存活玩家。这一轮的兜底是人类：主持稿里说清超过 5 分钟没结果就回你一句。",
+            }
+        )
+        return
+    target = max(dead_bots, key=lambda s: (s["eliminated_round"] or 0, s["seat"]))
+    message = (
+        "【看门狗任务】\n"
+        f"第 {state['round']} 轮投票正在进行，你已经出局了，不参与投票。\n"
+        "请等大约三分钟，然后只回一句：看门狗回执。\n"
+        "不要说别的，不要提词语、身份、发言或任何推理。"
+    )
+    emit(
+        {
+            "available": True,
+            "target_bot": target["bot_name"],
+            "player": target["display"],
+            "message": message,
+            "note": "用 bcs_assign_task 把 message 原样发给 target_bot。"
+            "收到「看门狗回执」时先查 status 和 collaborate permission：allowed 就说明投票运行已经失败，走卡住诊断重开。",
+        }
+    )
+
+
 def cmd_reveal(args: argparse.Namespace) -> None:
     state = load_state(args.session)
     if state["phase"] != "FINISHED":
@@ -1045,15 +1180,29 @@ def main() -> None:
     p.set_defaults(func=cmd_init)
 
     with_session(sub.add_parser("status", help="当前阶段和下一步")).set_defaults(func=cmd_status)
-    with_session(sub.add_parser("render-speak-run", help="渲染本轮发言协作")).set_defaults(
-        func=cmd_render_speak_run
+
+    p = with_session(sub.add_parser("render-speak-run", help="渲染本轮发言协作"))
+    p.add_argument(
+        "--retry",
+        action="store_true",
+        help="重开当前这一轮的发言运行（上一次提交的运行失败了）。轮次不推进。",
     )
-    with_session(sub.add_parser("render-vote-run", help="渲染本轮投票协作")).set_defaults(
-        func=cmd_render_vote_run
+    p.set_defaults(func=cmd_render_speak_run)
+
+    p = with_session(sub.add_parser("render-vote-run", help="渲染本轮投票协作"))
+    p.add_argument(
+        "--retry",
+        action="store_true",
+        help="重开当前这一轮的投票运行（上一次提交的运行失败了）。之前的票作废。",
     )
+    p.set_defaults(func=cmd_render_vote_run)
+
     with_session(sub.add_parser("render-ping", help="渲染遗言或预备任务")).set_defaults(
         func=cmd_render_ping
     )
+    with_session(
+        sub.add_parser("render-vote-watchdog", help="渲染投票期间的兜底唤醒任务")
+    ).set_defaults(func=cmd_render_vote_watchdog)
     with_session(sub.add_parser("reveal", help="终局公布真相")).set_defaults(func=cmd_reveal)
 
     p = with_session(sub.add_parser("speeches-set", help="提交本轮发言：检查、遮蔽、落盘"))

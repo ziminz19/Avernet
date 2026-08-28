@@ -16,6 +16,17 @@ abort "graph_mode must be acyclic" unless sm["graph_mode"] == "acyclic"
 nodes = sm["nodes"]
 abort "no nodes" if nodes.nil? || nodes.empty?
 
+# 节点超时与重试。Bot 的会话通道是串行的，偶尔会在一次激活结束后没有及时释放，
+# 节点任务要等 Bot 侧的自愈把通道抢回来，那是分钟级的。超时短于这个窗口，BCS 会
+# 先判死，节点产物随后到达变成孤儿。重试对这类故障无效，只会让同一节点排两份。
+BOT_NODE_TIMEOUT_MS = 420_000
+CONTENDED_NODE_TIMEOUT_MS = 600_000
+defaults = sm["defaults"] || {}
+abort "defaults.max_attempts must be 1, got #{defaults['max_attempts'].inspect}" unless
+  defaults["max_attempts"] == 1
+abort "defaults.node_timeout_ms must be >= #{BOT_NODE_TIMEOUT_MS}, got #{defaults['node_timeout_ms'].inspect}" unless
+  defaults["node_timeout_ms"].is_a?(Integer) && defaults["node_timeout_ms"] >= BOT_NODE_TIMEOUT_MS
+
 indeg = Hash[nodes.keys.map { |k| [k, 0] }]
 edges = Hash[nodes.keys.map { |k| [k, []] }]
 nodes.each do |nid, n|
@@ -77,6 +88,21 @@ nodes.each do |nid, n|
   abort "#{nid}: assignee.type must be bot_binding" unless n.dig("assignee", "type") == "bot_binding"
   abort "#{nid}: assignee.binding missing" if n.dig("assignee", "binding").to_s.empty?
 end
+
+# 裁判是在自己的一次激活里同步提交运行的，所以运行一开跑就派给裁判的节点会排在
+# 那次激活后面等自己让路。入口节点绝不能是裁判；裁判只能出现在汇合节点上，那时
+# 它的通道早就空了。
+referee_nodes = nodes.select { |_, n| n.dig("assignee", "binding") == "referee" }.keys.sort
+abort "entry node #{entries[0]} must not be assigned to the referee" if
+  nodes[entries[0]].dig("assignee", "binding") == "referee"
+
+nodes.each do |nid, n|
+  next unless n["kind"] == "bot_task"
+  abort "#{nid}: must not raise max_attempts above 1" if n.key?("max_attempts") && n["max_attempts"] != 1
+  effective = n["node_timeout_ms"] || defaults["node_timeout_ms"]
+  want = n.dig("assignee", "binding") == "referee" ? CONTENDED_NODE_TIMEOUT_MS : BOT_NODE_TIMEOUT_MS
+  abort "#{nid}: node_timeout_ms #{effective} < #{want}" unless effective.is_a?(Integer) && effective >= want
+end
 parts = d["participants"].keys.sort
 used = nodes.values.select { |n| n["kind"] == "bot_task" }.map { |n| n.dig("assignee", "binding") }.uniq.sort
 abort "participants #{parts.inspect} != bot bindings #{used.inspect}" unless used == parts
@@ -89,6 +115,8 @@ if kind == "speak"
   abort "speak run has no speaker nodes" if order.empty?
   abort "speak entry must be the first speaker" unless entries[0] == order[0]
   abort "speak final must be collect" unless final == "collect"
+  abort "speak run may only assign the referee to collect, got #{referee_nodes.inspect}" unless
+    referee_nodes == ["collect"]
   order.each_with_index do |nid, i|
     got = nodes[nid].dig("transitions", "complete", "targets")
     want = order[(i + 1)..] + ["collect"]
@@ -99,6 +127,8 @@ else
   abort "vote run has no voter nodes" if voters.empty?
   abort "vote entry must be vote_open" unless entries[0] == "vote_open"
   abort "vote final must be tally" unless final == "tally"
+  abort "vote run may only assign the referee to tally, got #{referee_nodes.inspect}" unless
+    referee_nodes == ["tally"]
   got = nodes["vote_open"].dig("transitions", "complete", "targets")
   abort "vote_open must fan out to every voter: #{got.inspect} != #{voters.inspect}" unless got == voters
   voters.each do |nid|

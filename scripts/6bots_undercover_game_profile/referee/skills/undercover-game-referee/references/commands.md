@@ -13,7 +13,7 @@ uc() { python3 "$SKILL_DIR/scripts/undercover.py" "$@"; }
 
 | 命令 | 输出里有词吗 |
 | --- | --- |
-| `init` `status` `speeches-set` `votes-set` `parse-vote` `render-ping` | **没有**，可以放心引用 |
+| `init` `status` `speeches-set` `votes-set` `parse-vote` `render-ping` `render-vote-watchdog` | **没有**，可以放心引用 |
 | `render-speak-run` `render-vote-run` | 只有文件路径，词在文件里，我不读也不贴 |
 | `reveal` | 有，且只有终局才能调 |
 
@@ -32,13 +32,21 @@ uc init --session S --group G --human human_123 --referee-uuid $BCN_BOT_UUID \
 
 ### `status`
 
-返回 `phase`、`round`、`alive`、`eliminated`、`pending_ping`、`result`、`next_action`。**每次被唤醒的第一件事。**
+返回 `phase`、`round`、`alive`、`eliminated`、`pending_ping`、`renders`、`result`、`next_action`。**每次被唤醒的第一件事。**
+
+`renders` 是本轮各运行渲染过几次，例如 `{"speak": 1, "vote": 2}` 表示投票重开过一次。
 
 ### `render-speak-run`
 
+```bash
+uc render-speak-run --session S [--retry]
+```
+
 只能在 `AWAIT_START` 或 `AWAIT_NEXT_ROUND` 调。**渲染即推进**：它自己把轮次加一、建好本轮记录、把 phase 推到 `SPEAK_RUNNING`。
 
-返回 `yaml_path`、`input_path`、`bindings`、`binding_args`、`speaking_order`。
+返回 `yaml_path`、`input_path`、`bindings`、`binding_args`、`speaking_order`、`attempt`。
+
+`--retry` 用来重开当前这一轮：只能在 `SPEAK_RUNNING` 且本轮发言还没收齐时调，**轮次不推进、本轮记录不重建**，只是把同一份 YAML 重渲染一次。上一次提交的运行失败了才用它——运行失败不会唤醒我，所以这条路只会从 SX 卡住诊断走进来。
 
 ### `speeches-set`
 
@@ -56,7 +64,13 @@ uc speeches-set --session S --json '{"1":"...","2":"..."}' [--flag 3=谈论了�
 
 ### `render-vote-run`
 
+```bash
+uc render-vote-run --session S [--retry]
+```
+
 只能在 `AWAIT_VOTE_START` 调，同样渲染即推进，phase 到 `VOTE_RUNNING`。返回字段同 `render-speak-run`，外加 `voters`。
+
+`--retry` 用来重开当前这一轮的投票，只能在 `VOTE_RUNNING` 调。**没有它，卡住诊断走不通**——不带 `--retry` 时阶段卫兵只认 `AWAIT_VOTE_START`，而这时 phase 早就是 `VOTE_RUNNING` 了。重开后之前投过的票作废，要向人类说明。
 
 ### `votes-set`
 
@@ -79,6 +93,22 @@ uc votes-set --session S --json '{"1":"我投3号，...","2":"我弃权"}'
 
 只能在有 `pending_ping` 时调。返回 `kind`（`eulogy` 遗言 / `standby` 预备）、`target_bot`、`message`。
 用 `bcs_assign_task` 把 `message` 原样发给 `target_bot`。**这条回执是下一轮的唤醒源。**
+
+### `render-vote-watchdog`
+
+```bash
+uc render-vote-watchdog --session S
+```
+
+只能在 `VOTE_RUNNING` 调。渲染一条投票期间的兜底唤醒任务——投票运行失败不会唤醒我，
+这条回执是唯一不依赖人类的唤醒源。
+
+- `available: true` → 带 `target_bot` 和 `message`，用 `bcs_assign_task` 原样发过去。
+  目标一定是**已出局**的 Bot：它在本轮投票运行里没有任何节点，通道整场空着。
+- `available: false` → 第一轮还没人出局，没有安全人选。**绝不改派给存活玩家**，
+  那等于在别人的通道里塞第二件事，正是要避免的那个毛病。这一轮的兜底只能是人类。
+
+收到「看门狗回执」时不要当成普通迟到回执：走一遍 SX 卡住诊断。
 
 ### `reveal`
 
