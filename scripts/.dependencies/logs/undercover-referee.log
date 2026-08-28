@@ -1,0 +1,600 @@
+[90m2026-08-28T10:54:10.947+08:00[39m [36m[gateway][39m [36mloading configuration…[39m
+[90m2026-08-28T10:54:10.986+08:00[39m [36m[gateway][39m [36mresolving authentication…[39m
+[90m2026-08-28T10:54:10.994+08:00[39m [36m[gateway][39m [36mstarting...[39m
+[90m2026-08-28T10:54:11.396+08:00[39m [36m[gateway][39m [36mstarting HTTP server...[39m
+[90m2026-08-28T10:54:11.473+08:00[39m [32m[health-monitor][39m [36mstarted (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)[39m
+2026-08-28T10:54:11.589+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T10:54:11.607+08:00 plugin runtime config.loadConfig() is deprecated (runtime-config-load-write); use config.current().
+[90m2026-08-28T10:54:11.748+08:00[39m [36m[gateway][39m [36magent model: openai-compatible/GLM-5.2 (thinking=off, fast=off)[39m
+[90m2026-08-28T10:54:11.749+08:00[39m [36m[gateway][39m [36mhttp server listening (10 plugins: bonjour, browser, canvas, device-pair, file-transfer, memory-core, ollama, openclaw-channel-bcn, phone-control, talk-voice; 0.6s)[39m
+[90m2026-08-28T10:54:11.749+08:00[39m [36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-08-28.log[39m
+[90m2026-08-28T10:54:11.786+08:00[39m [36m[gateway][39m [33msecurity warning: dangerous config flags enabled: gateway.controlUi.dangerouslyDisableDeviceAuth=true. Run `openclaw security audit`.[39m
+[90m2026-08-28T10:54:11.787+08:00[39m [36m[gateway][39m [36mstarting channels and sidecars...[39m
+[90m2026-08-28T10:54:11.834+08:00[39m [33m[hooks][39m [36mloaded 5 internal hook handlers[39m
+[90m2026-08-28T10:54:11.858+08:00[39m [36m[bcs][39m [36mStarting BCS channel (account: default, url: ws://127.0.0.1:21000/ws/bot, bot: 谁是卧底主持人)[39m
+[90m2026-08-28T10:54:11.865+08:00[39m [36m[bcs][39m [36mAgent events subscription initialized[39m
+[90m2026-08-28T10:54:11.866+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved dataDir from storePath: /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee[39m
+[90m2026-08-28T10:54:11.868+08:00[39m [36m[bcs][39m [36mConnecting to BCS: ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T10:54:11.869+08:00[39m [36m[bcs][39m [36mUsing saved session token for reconnection (bot_uuid=谁是卧底主持人)[39m
+[90m2026-08-28T10:54:11.869+08:00[39m [36m[bcs][39m [36mWebSocket connecting to ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T10:54:11.916+08:00[39m [36m[gateway][39m [36mready[39m
+[90m2026-08-28T10:54:11.923+08:00[39m [36m[heartbeat][39m [36mstarted[39m
+[90m2026-08-28T10:54:11.942+08:00[39m [36m[bcs][39m [36mWebSocket TCP handshake succeeded: ws://127.0.0.1:21000/ws/bot[39m
+[90m2026-08-28T10:54:11.943+08:00[39m [36m[bcs][39m [36mUsing bot_id: 谁是卧底主持人 (source: config)[39m
+[90m2026-08-28T10:54:11.944+08:00[39m [36m[bcs][39m [36mSending bot.connect (id=000001, bot_id=谁是卧底主持人, token=***[39m
+[90m2026-08-28T10:54:11.948+08:00[39m [36m[bcs][39m [36mProtocol version: 2[39m
+[90m2026-08-28T10:54:11.949+08:00[39m [36m[bcs][39m [36mSession saved to /Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/.bcs/session.json[39m
+[90m2026-08-28T10:54:11.950+08:00[39m [36m[bcs][39m [36mBot connected: bot_uuid=谁是卧底主持人, is_new=false, token=***[39m
+[90m2026-08-28T10:54:11.951+08:00[39m [36m[bcs][39m [36mHeartbeat started (interval=60000ms)[39m
+[90m2026-08-28T10:54:11.951+08:00[39m [36m[bcs][39m [36mConnected to BCS, bot_uuid=谁是卧底主持人[39m
+[90m2026-08-28T10:54:12.785+08:00[39m [35m[plugins][39m [36mbonjour: advertised gateway fqdn=U-6W0V9VT0-1823 (OpenClaw)._openclaw-gw._tcp.local. host=U-6W0V9VT0-1823.local. port=30801 state=announcing[39m
+2026-08-28T10:54:21.946+08:00 [openclaw-channel-bcn] plugin registered
+[90m2026-08-28T10:54:21.984+08:00[39m [36m[gateway][39m [36magent runtime plugins pre-warmed in 68ms[39m
+[90m2026-08-28T10:58:52.035+08:00[39m [36m[bcs][39m [36mchat.send from bcs-system-message in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: <GroupContext>[39m
+[36m当前你在 bcn 群聊中，群聊相关信息如下[39m
+[36m[39m
+[36m## 群聊信息[39m
+[36m* 群组ID: bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b[39m
+[36m* 会话I...[39m
+[90m2026-08-28T10:58:52.039+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:58:52.043+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T10:58:52.067+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T10:58:52.069+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T10:58:54.054+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T10:58:54.067+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T10:58:54.070+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T10:58:54.071+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"manager_worker","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T10:58:54.075+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T10:58:54.076+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T10:58:54.552+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:58:54.572+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:58:54.581+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+2026-08-28T10:58:54.644+08:00 (node:67010) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90m2026-08-28T10:58:56.773+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2187 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:00.582+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:00.974+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:00.977+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:01.199+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:01.200+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:01.201+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:01.453+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:01.454+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.169+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.170+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.171+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.172+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.353+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.354+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.357+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.357+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.358+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.359+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:02.532+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T10:59:04.606+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2070 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:06.579+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:07.646+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:07.649+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:07.871+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:07.872+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.040+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.040+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.222+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.223+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.404+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.405+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.569+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.570+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:08.744+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T10:59:11.495+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2744 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:12.581+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:18.582+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:21.660+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:21.663+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:21.665+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.122+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.126+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.128+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.129+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.336+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.337+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.338+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.338+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:22.519+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T10:59:24.582+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:25.296+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2775 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:28.316+08:00[39m [36m[ws][39m [33munauthorized conn=d17090e1-3b67-4580-bd3a-23b21ab3ff8a peer=127.0.0.1:52600->127.0.0.1:30801 remote=127.0.0.1 client=openclaw-control-ui webchat vdev role=operator scopes=5 auth=none device=no platform=MacIntel instance=33b7057d-641c-4019-9d08-f3b38d09afaf host=127.0.0.1:30801 origin=http://127.0.0.1:30801 ua=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 reason=token_missing[39m
+[90m2026-08-28T10:59:28.323+08:00[39m [36m[ws][39m [33mclosed before connect conn=d17090e1-3b67-4580-bd3a-23b21ab3ff8a peer=127.0.0.1:52600->127.0.0.1:30801 remote=127.0.0.1 fwd=n/a origin=http://127.0.0.1:30801 host=127.0.0.1:30801 ua=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open the dashboard URL and paste the token in Control UI settings) phase=ws_upgrade_started[39m
+[90m2026-08-28T10:59:30.192+08:00[39m [36m[ws][39m [36mwebchat connected conn=9a1bbfc0-a8cc-4b88-8920-326a4f56e8e9 remote=127.0.0.1 client=openclaw-control-ui webchat vdev[39m
+[90m2026-08-28T10:59:30.364+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.subscribe 105ms conn=9a1bbfc0…e8e9 id=3664def3…1ae0[39m
+[90m2026-08-28T10:59:30.365+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.messages.subscribe 106ms conn=9a1bbfc0…e8e9 id=843744c8…45b9[39m
+[90m2026-08-28T10:59:30.367+08:00[39m [36m[ws][39m [36m⇄ res ✓ agent.identity.get 108ms conn=9a1bbfc0…e8e9 id=c4bf116d…f9b2[39m
+[90m2026-08-28T10:59:30.371+08:00[39m [36m[ws][39m [36m⇄ res ✓ models.authStatus 112ms conn=9a1bbfc0…e8e9 id=740414f9…fa15[39m
+[90m2026-08-28T10:59:30.503+08:00[39m [36m[ws][39m [36m⇄ res ✓ config.get 244ms conn=9a1bbfc0…e8e9 id=3b383fa5…59a7[39m
+[90m2026-08-28T10:59:30.509+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.startup 250ms conn=9a1bbfc0…e8e9 id=34aebc99…2a51[39m
+[90m2026-08-28T10:59:30.571+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 61ms conn=9a1bbfc0…e8e9 id=aab23c96…b056[39m
+[90m2026-08-28T10:59:30.572+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 56ms conn=9a1bbfc0…e8e9 id=f1c0d11d…50e9[39m
+[90m2026-08-28T10:59:30.580+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:32.097+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.098+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.099+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.457+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.458+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.459+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.460+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.810+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 173ms conn=9a1bbfc0…e8e9 id=5a2ad002…5062[39m
+[90m2026-08-28T10:59:32.856+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 219ms conn=9a1bbfc0…e8e9 id=e30fba05…a3f0[39m
+[90m2026-08-28T10:59:32.859+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 222ms conn=9a1bbfc0…e8e9 id=6c98fcfa…d3c2[39m
+[90m2026-08-28T10:59:32.860+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.metadata 223ms conn=9a1bbfc0…e8e9 id=5d5f959c…59d8[39m
+[90m2026-08-28T10:59:32.871+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 234ms conn=9a1bbfc0…e8e9 id=106b4f6b…a8cf[39m
+[90m2026-08-28T10:59:32.873+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.874+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.875+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:32.876+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:33.443+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T10:59:35.351+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1904 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:36.584+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:39.214+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:39.214+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:39.544+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 515ms conn=9a1bbfc0…e8e9 id=5848f3e6…3959[39m
+[90m2026-08-28T10:59:39.548+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:39.549+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:39.906+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T10:59:40.990+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1081 contentType=text/event-stream[39m
+[90m2026-08-28T10:59:42.584+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:46.628+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.645+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.727+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.777+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.780+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.827+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.884+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.947+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:46.967+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.018+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.056+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.111+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.146+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.200+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.267+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.287+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.336+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.383+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.423+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.466+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.518+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.572+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.633+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.655+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.703+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.750+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.802+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.851+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.885+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.932+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:47.980+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.022+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.068+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.122+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.190+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.300+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.344+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.389+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.407+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.450+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.570+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.581+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.584+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T10:59:48.620+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.651+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.678+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.732+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.771+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.824+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.875+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.921+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:48.977+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.001+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.059+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.095+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.146+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.185+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.259+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.285+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.336+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.377+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.456+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.484+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.515+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.804+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, len=379[39m
+[90m2026-08-28T10:59:49.805+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, len=379[39m
+[90m2026-08-28T10:59:49.806+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:49.826+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0 (source=agent_lifecycle)[39m
+[90m2026-08-28T10:59:49.827+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T10:59:50.000+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 171ms conn=9a1bbfc0…e8e9 id=3f776794…6316[39m
+[90m2026-08-28T10:59:50.201+08:00[39m [36m[bcs][39m [36mdeliver called (kind=final, final part 1) for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0, len=154[39m
+[90m2026-08-28T10:59:50.204+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=fe80b3b7-6181-4965-9cc3-d8373b3a70c0[39m
+[90m2026-08-28T11:00:01.493+08:00[39m [36m[bcs][39m [36mchat.send from Turing in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: 开始[39m
+[90m2026-08-28T11:00:01.496+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:01.500+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:00:01.512+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:00:01.514+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T11:00:02.454+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:00:02.455+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:00:02.456+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"manager_worker","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:00:02.459+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:00:02.459+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:00:02.832+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:02.838+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:02.841+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:00:03.018+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 174ms conn=9a1bbfc0…e8e9 id=d18c0c94…b3cd[39m
+[90m2026-08-28T11:00:03.020+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 178ms conn=9a1bbfc0…e8e9 id=bba7a08c…59a5[39m
+[90m2026-08-28T11:00:04.060+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1217 contentType=text/event-stream[39m
+[90m2026-08-28T11:00:08.843+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:14.842+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:17.368+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.373+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.376+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.593+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 212ms conn=9a1bbfc0…e8e9 id=d0891b8b…a737[39m
+[90m2026-08-28T11:00:17.703+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.704+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.705+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.705+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.728+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.728+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.729+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.730+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:17.737+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:00:20.815+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3076 contentType=text/event-stream[39m
+[90m2026-08-28T11:00:20.845+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:23.297+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.300+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.303+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.535+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 227ms conn=9a1bbfc0…e8e9 id=b61f7782…9cb4[39m
+[90m2026-08-28T11:00:23.737+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.738+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.739+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.740+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.744+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.745+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.746+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.747+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:23.757+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:00:24.862+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1103 contentType=text/event-stream[39m
+[90m2026-08-28T11:00:26.846+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:27.328+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.334+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.340+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.549+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 205ms conn=9a1bbfc0…e8e9 id=a27038ef…6bad[39m
+[90m2026-08-28T11:00:27.625+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.626+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.627+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.628+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.632+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.632+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.633+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.634+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:27.642+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:00:28.779+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1135 contentType=text/event-stream[39m
+[90m2026-08-28T11:00:32.846+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:33.494+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.498+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.502+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.720+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 211ms conn=9a1bbfc0…e8e9 id=d5e7f0f4…1bff[39m
+[90m2026-08-28T11:00:33.935+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.936+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.937+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.938+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.942+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.943+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.944+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.945+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:33.953+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:00:34.990+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1037 contentType=text/event-stream[39m
+[90m2026-08-28T11:00:35.209+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.266+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.308+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.357+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.414+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.463+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.558+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.580+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.654+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.724+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.757+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.825+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.863+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.919+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:35.976+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.030+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.099+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.136+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.202+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.239+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.300+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.352+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.402+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.470+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.506+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.630+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.653+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884, len=131[39m
+[90m2026-08-28T11:00:36.656+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884, len=131[39m
+[90m2026-08-28T11:00:36.657+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.690+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884 (source=agent_lifecycle)[39m
+[90m2026-08-28T11:00:36.691+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=12159efd-d33c-47cb-85db-7d8ab09c7884, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:00:36.703+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=12159efd-d33c-47cb-85db-7d8ab09c7884[39m
+[90m2026-08-28T11:00:36.903+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 197ms conn=9a1bbfc0…e8e9 id=875d6625…b191[39m
+[90m2026-08-28T11:03:56.616+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: [BCS Group Context][39m
+[36m- 参与者: 谁是卧底主持人, 玩家和事佬阿和, 玩家戏精阿浪, 玩家逻辑控林工, 玩家话痨小满, 玩家稳健老陈[39m
+[36m- 你是: 谁是卧底主持人[39m
+[36m- 你的角色: m...[39m
+[90m2026-08-28T11:03:56.618+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:03:56.619+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:03:56.624+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:03:56.625+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T11:03:57.545+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:03:57.546+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 (routingMode=default)
+2026-08-28T11:03:57.547+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:03:57.548+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:03:57.550+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:03:57.551+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:03:57.930+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:03:57.936+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0[39m
+[90m2026-08-28T11:03:57.940+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:03:58.141+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 171ms conn=9a1bbfc0…e8e9 id=9f9bb121…70eb[39m
+[90m2026-08-28T11:04:01.206+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3263 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:03.295+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.298+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.303+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.529+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 221ms conn=9a1bbfc0…e8e9 id=1b345265…8f30[39m
+[90m2026-08-28T11:04:03.940+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0[39m
+[90m2026-08-28T11:04:03.958+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.959+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.960+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.961+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.991+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.992+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.993+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:03.994+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:04.002+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:04:07.670+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3667 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:07.850+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:07.925+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:07.943+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:07.998+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.038+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.084+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.147+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.179+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.224+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.268+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.317+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.366+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.417+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.462+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.507+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.554+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.607+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.651+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.701+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.871+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.889+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.912+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.941+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:08.992+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.055+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.107+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.233+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.256+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.313+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.338+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, len=173[39m
+[90m2026-08-28T11:04:09.340+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, len=173[39m
+[90m2026-08-28T11:04:09.341+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.370+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0 (source=agent_lifecycle)[39m
+[90m2026-08-28T11:04:09.371+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.378+08:00[39m [36m[bcs][39m [36mchat.send from 谁是卧底主持人 in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: 六位都说完了。[39m
+[36m[39m
+[36m1号小满：「冬天早上赖床的时候，它把我裹得像个枕头卷」[39m
+[36m2号你：「毛绒绒的，能帮你保暖」[39m
+[36m3号阿浪：「我跟你讲，缩在里面的时候谁也别想把我拽起来」[39m
+[36m4号林工：「有厚度的软织物，冷的时...[39m
+[90m2026-08-28T11:04:09.379+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:09.380+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:04:09.584+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:04:09.585+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+[90m2026-08-28T11:04:09.759+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 375ms conn=9a1bbfc0…e8e9 id=550cd2c1…e4fd[39m
+[90m2026-08-28T11:04:09.761+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-4e82aed2-bf88-4475-8e45-674321a6589c-collect-0[39m
+2026-08-28T11:04:10.504+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:04:10.506+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:04:10.506+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"manager_worker","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:04:10.509+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:04:10.510+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:04:10.900+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=1c069411-9bb3-4d31-8835-bbc368160739, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:11.090+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 185ms conn=9a1bbfc0…e8e9 id=dfbcdece…f772[39m
+[90m2026-08-28T11:04:11.091+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=1c069411-9bb3-4d31-8835-bbc368160739[39m
+[90m2026-08-28T11:04:11.094+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:04:14.383+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3286 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:15.425+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=1c069411-9bb3-4d31-8835-bbc368160739, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:15.475+08:00[39m [36m[bcs][39m [33mNo assistant agent text for run_id=1c069411-9bb3-4d31-8835-bbc368160739, sending NO_REPLY final[39m
+[90m2026-08-28T11:04:15.477+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=1c069411-9bb3-4d31-8835-bbc368160739 (source=agent_lifecycle)[39m
+[90m2026-08-28T11:04:15.478+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=1c069411-9bb3-4d31-8835-bbc368160739, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:15.491+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=1c069411-9bb3-4d31-8835-bbc368160739[39m
+[90m2026-08-28T11:04:40.569+08:00[39m [36m[bcs][39m [36mchat.send from Turing in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: 开始投票[39m
+[90m2026-08-28T11:04:40.573+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:40.576+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:04:40.585+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:04:40.587+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+2026-08-28T11:04:41.549+08:00 [openclaw-channel-bcn] plugin registered
+2026-08-28T11:04:41.553+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:04:41.553+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:04:41.554+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"manager_worker","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:04:41.556+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:04:41.557+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:04:41.994+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:42.002+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e[39m
+[90m2026-08-28T11:04:42.006+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:04:42.198+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 190ms conn=9a1bbfc0…e8e9 id=593ea668…b1a5[39m
+[90m2026-08-28T11:04:42.202+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 194ms conn=9a1bbfc0…e8e9 id=64d283f7…3567[39m
+[90m2026-08-28T11:04:44.170+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=2162 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:46.096+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.099+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.103+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.318+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 210ms conn=9a1bbfc0…e8e9 id=1da69df5…7033[39m
+[90m2026-08-28T11:04:46.552+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.553+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.554+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.555+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.583+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.584+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.585+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.585+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:46.594+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:04:48.009+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e[39m
+[90m2026-08-28T11:04:50.027+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3432 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:51.060+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.061+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.062+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.296+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 232ms conn=9a1bbfc0…e8e9 id=61f93372…bd55[39m
+[90m2026-08-28T11:04:51.394+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.395+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.396+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.397+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.400+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.401+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.402+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.403+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:51.410+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:04:54.010+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e[39m
+[90m2026-08-28T11:04:54.994+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3583 contentType=text/event-stream[39m
+[90m2026-08-28T11:04:59.579+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.580+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.582+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.587+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 239ms conn=9a1bbfc0…e8e9 id=b81ce33d…7416[39m
+[90m2026-08-28T11:04:59.815+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: [BCS Group Context][39m
+[36m- 参与者: 谁是卧底主持人, 玩家和事佬阿和, 玩家戏精阿浪, 玩家逻辑控林工, 玩家话痨小满, 玩家稳健老陈[39m
+[36m- 你是: 谁是卧底主持人[39m
+[36m- 你的角色: m...[39m
+[90m2026-08-28T11:04:59.816+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.817+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:04:59.819+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.820+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.820+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.821+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.827+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=tool, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.828+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.829+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=item, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.830+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=command_output, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:04:59.837+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:04:59.837+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+[90m2026-08-28T11:05:00.050+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e[39m
+[90m2026-08-28T11:05:00.055+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:05:01.734+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1678 contentType=text/event-stream[39m
+[90m2026-08-28T11:05:01.928+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:05:01.980+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:05:02.043+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:05:02.063+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, len=28[39m
+[90m2026-08-28T11:05:02.064+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:05:02.091+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e (source=agent_lifecycle)[39m
+[90m2026-08-28T11:05:02.092+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=fdc81bd4-dcb1-4acc-b0fb-b2781884223e, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:05:02.287+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 183ms conn=9a1bbfc0…e8e9 id=51fe1173…ecd5[39m
+[90m2026-08-28T11:08:00.603+08:00[39m [36m[bcs][39m [36mchat.send from BCS State Machine in bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236: [BCS Group Context][39m
+[36m- 参与者: 谁是卧底主持人, 玩家和事佬阿和, 玩家戏精阿浪, 玩家逻辑控林工, 玩家话痨小满, 玩家稳健老陈[39m
+[36m- 你是: 谁是卧底主持人[39m
+[36m- 你的角色: m...[39m
+[90m2026-08-28T11:08:00.606+08:00[39m [36m[bcs][39m [36m[DEBUG] Resolved agent route: agentId=main, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:08:00.610+08:00[39m [36m[bcs][39m [36m[DEBUG] Recording inbound session: storePath=/Users/ziminz19/Desktop/Avernet/.standalone-openclaw/profiles/undercover-referee/agents/main/sessions/sessions.json, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, agentId=main[39m
+[90m2026-08-28T11:08:00.621+08:00[39m [36m[bcs][39m [36m[DEBUG] Successfully recorded inbound session[39m
+[90m2026-08-28T11:08:00.623+08:00[39m [36m[bcs][39m [36m[BCN PLUGIN LOADED] test message from inbound-handler[39m
+[90m2026-08-28T11:10:11.576+08:00[39m [31m[diagnostic][39m [33mstuck session: sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 state=processing age=131s queueDepth=2 reason=queued_work_without_active_run classification=stale_session_state lastProgress=run:completed lastProgressAge=309s terminalProgressStale=true recovery=checking[39m
+[90m2026-08-28T11:10:11.603+08:00[39m [31m[diagnostic][39m [33mstuck session recovery outcome: status=skipped action=keep_lane sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 activeSessionId=b49074be-f161-4ae4-aead-e4c947fdc341 activeWorkKind=embedded_run reason=active_reply_work[39m
+[90m2026-08-28T11:10:41.572+08:00[39m [31m[diagnostic][39m [33mstuck session recovery outcome: status=skipped action=keep_lane sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 activeSessionId=b49074be-f161-4ae4-aead-e4c947fdc341 activeWorkKind=embedded_run reason=active_reply_work[39m
+[90m2026-08-28T11:11:00.055+08:00[39m [31m[diagnostic][39m [33mstuck session recovery outcome: status=skipped action=keep_lane sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 activeSessionId=b49074be-f161-4ae4-aead-e4c947fdc341 activeWorkKind=embedded_run reason=active_reply_work[39m
+[90m2026-08-28T11:11:11.573+08:00[39m [31m[diagnostic][39m [33mstuck session recovery reclaiming stale active reply work: sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 age=191s queueDepth=2 activeSessionId=b49074be-f161-4ae4-aead-e4c947fdc341[39m
+[90m2026-08-28T11:11:11.581+08:00[39m [31m[diagnostic][39m [33mstuck session recovery: sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 age=191s action=abort_embedded_run aborted=false drained=false released=0[39m
+[90m2026-08-28T11:11:11.584+08:00[39m [31m[diagnostic][39m [33mstuck session recovery outcome: status=aborted action=abort_embedded_run sessionId=b49074be-f161-4ae4-aead-e4c947fdc341 sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 activeSessionId=b49074be-f161-4ae4-aead-e4c947fdc341 activeWorkKind=embedded_run lane=session:agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 aborted=false drained=false forceCleared=true released=0[39m
+2026-08-28T11:11:12.368+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:11:12.369+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 (routingMode=default)
+2026-08-28T11:11:12.370+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:11:12.370+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:11:12.373+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:11:12.374+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:11:12.799+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:12.805+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1[39m
+[90m2026-08-28T11:11:12.808+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:11:12.980+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 170ms conn=9a1bbfc0…e8e9 id=2e560010…b628[39m
+[90m2026-08-28T11:11:12.984+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 174ms conn=9a1bbfc0…e8e9 id=99a183b4…06bf[39m
+[90m2026-08-28T11:11:16.639+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3828 contentType=text/event-stream[39m
+[90m2026-08-28T11:11:16.835+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:16.897+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, stream=assistant, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:16.920+08:00[39m [36m[bcs][39m [36mbuffered block deliver for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, len=30[39m
+[90m2026-08-28T11:11:16.923+08:00[39m [36m[bcs][39m [36mSent chat.event delta from agent event (part 1) for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, len=30[39m
+[90m2026-08-28T11:11:16.926+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:16.930+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=fdc81bd4-dcb1-4acc-b0fb-b2781884223e[39m
+[90m2026-08-28T11:11:16.983+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1 (source=agent_lifecycle)[39m
+[90m2026-08-28T11:11:16.984+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:17.195+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 203ms conn=9a1bbfc0…e8e9 id=8af322cb…988e[39m
+[90m2026-08-28T11:11:17.197+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-1[39m
+2026-08-28T11:11:17.902+08:00 [bcs_route] registerTool probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:11:17.903+08:00 [bcs_route] ACTIVATED for sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236 (routingMode=default)
+2026-08-28T11:11:17.903+08:00 [bcs_assign_task] probe: channel=bcs, sessionKey=agent:main:bcs:group:bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236
+2026-08-28T11:11:17.904+08:00 [bcs_assign_task] taskInfo: {"groupId":"bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236","groupType":"state_machine","originator":"Turing(human_001)","participants":["谁是卧底主持人","玩家和事佬阿和","玩家戏精阿浪","玩家逻辑控林工","玩家话痨小满","玩家稳健老陈"],"recipientRole":"manager"}, BCN_BOT_UUID=undefined
+[90m2026-08-28T11:11:17.906+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:11:17.907+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:11:18.276+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:18.281+08:00[39m [36m[bcs][39m [36mAgent reply started for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0[39m
+[90m2026-08-28T11:11:18.284+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:11:18.459+08:00[39m [36m[ws][39m [36m⇄ res ✓ sessions.list 173ms conn=9a1bbfc0…e8e9 id=8ac50885…0a49[39m
+[90m2026-08-28T11:11:18.464+08:00[39m [36m[ws][39m [36m⇄ res ✓ chat.history 178ms conn=9a1bbfc0…e8e9 id=7bad5b4e…416a[39m
+[90m2026-08-28T11:11:20.054+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1769 contentType=text/event-stream[39m
+[90m2026-08-28T11:11:23.072+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:23.124+08:00[39m [36m[bcs][39m [33mNo assistant agent text for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0, sending NO_REPLY final[39m
+[90m2026-08-28T11:11:23.126+08:00[39m [36m[bcs][39m [36mSent chat.event final for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0 (source=agent_lifecycle)[39m
+[90m2026-08-28T11:11:23.128+08:00[39m [36m[bcs][39m [36mForwarded agent event: runId=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0, stream=lifecycle, groupId=bcs_grp_f6fadc71b4fc41a1bb3aa16d57ffb11b:13b8e236[39m
+[90m2026-08-28T11:11:23.143+08:00[39m [36m[bcs][39m [36mDispatcher settled after terminal lifecycle for run_id=smnode-sm-9341c9dc-97c3-4ab8-9c76-d4d743133816-vote_open-0[39m
+2026-08-28T11:12:03.991+08:00 [bcs_route] registerTool probe: channel=, sessionKey=agent:main:main, ctxKeys=config,runtimeConfig,getRuntimeConfig,fsPolicy,workspaceDir,agentDir,agentId,sessionKey,sessionId,activeModel,browser,messageChannel,agentAccountId,deliveryContext,requesterSenderId,senderIsOwner,sandboxed,oneShotCliRun,hasAuthForProvider,resolveApiKeyForProvider
+2026-08-28T11:12:03.993+08:00 [bcs_assign_task] probe: channel=, sessionKey=agent:main:main
+[90m2026-08-28T11:12:03.996+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 12 tool(s) via tools.profile (coding): agents_list, browser, canvas, dir_fetch, dir_list, file_fetch, file_write, gateway, message, node_inference, nodes, tts[39m
+[90m2026-08-28T11:12:03.997+08:00[39m [36m[agents/tool-policy][39m [36mtool policy removed 1 tool(s) via gateway sender owner-only tools.deny: cron; matched cron[39m
+[90m2026-08-28T11:12:04.044+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:04.050+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:12:05.552+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=1498 contentType=text/event-stream[39m
+[90m2026-08-28T11:12:07.289+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.292+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.294+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.810+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.811+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.811+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.812+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.813+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.814+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.815+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.815+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.842+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.843+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.843+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.844+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:07.849+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:12:08.471+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=618 contentType=text/event-stream[39m
+[90m2026-08-28T11:12:09.744+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.747+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.749+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.788+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.789+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.791+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.793+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.795+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.797+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.803+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.805+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.806+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.808+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:09.815+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] start provider=openai-compatible api=openai-completions model=GLM-5.2 method=POST url=https://antchat.alipay.com/v1/chat/completions timeoutMs=undefined proxy=env policy=custom[39m
+[90m2026-08-28T11:12:13.150+08:00[39m [33m[provider-transport-fetch][39m [36m[model-fetch] response provider=openai-compatible api=openai-completions model=GLM-5.2 status=200 elapsedMs=3332 contentType=text/event-stream[39m
+[90m2026-08-28T11:12:13.379+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.440+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.493+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.556+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.603+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.667+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.690+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m
+[90m2026-08-28T11:12:13.719+08:00[39m [36m[bcs][39m [33mNo run context for runId=94ce9c65-2df1-4b01-b0a6-be0603ef7891, skipping[39m

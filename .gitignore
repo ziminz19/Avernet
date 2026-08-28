@@ -34,7 +34,9 @@ target/
 data/
 tmp/
 temp/
-scripts/.dependencies/
+scripts/.dependencies/*
+!scripts/.dependencies/logs/
+!scripts/.dependencies/logs/**
 .quickstart-openclaw/
 .openclaw-host-bcn/
 .standalone-openclaw/
