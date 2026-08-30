@@ -126,6 +126,10 @@ uc open-round --session S [--retry]
 
 槽位被占时返回 `RUN_SLOT_BUSY`，**这时状态没有任何改动**，可以安全重试。
 
+例外是 phase 还停在 `AWAIT_NEXT_ROUND` 的那次：那说明投票运行没收尾，绝大多数时候是因为
+我把 S4 和 S5 挤进了同一次激活——我此刻就是那个运行的末节点。这时返回的是 **`IN_TALLY_NODE`**，
+**立刻结束激活，一次都不要重试**。
+
 ### `open-vote`
 
 ```bash
@@ -135,7 +139,12 @@ uc open-vote --session S [--retry]
 同上，外加一个 `watchdog` 字段（内容同 `render-vote-watchdog`）。
 
 槽位被占时脚本会自己退避重试三次（自动开投那一刻发言运行可能刚收尾），不用我在外面
-"等几秒再试一次"——每试一次都是一个来回。三次仍被占才返回 `RUN_SLOT_BUSY`。
+"等几秒再试一次"——每试一次都是一个来回。三次仍被占才报错，而错误码分两种：
+
+- `RUN_SLOT_BUSY`（`--retry` 那条路上）：上一个运行还活着，什么都没改，回一句还在等谁。
+- **`IN_COLLECT_NODE`**（phase 还是 `AWAIT_VOTE_START`）：发言运行没收尾，绝大多数时候
+  是因为我把 S2 和 S3 挤进了同一次激活——我此刻就是那个运行的末节点，它等我结束、我等
+  槽位。**立刻结束激活，一次都不要重试**，照返回的 `message` 办。
 
 提交完只剩一件事：
 `watchdog.available` 为真就用 `bcs_assign_task` 把 `watchdog.message` 发给
@@ -163,6 +172,10 @@ uc speeches-set --session S --json '{"1":"...","2":"..."}' [--flag 3=谈论了�
 只能在 `SPEAK_RUNNING` 调。座位号必须和本轮存活名单完全一致。
 
 对每条发言做泄词判定并遮蔽，返回 `speeches[]`：`seat` / `player` / `label` / `kind` / `text`（**遮蔽后的可展示文本**）/ `violation`。phase 推到 `AWAIT_VOTE_START`。
+
+**phase 变成 `AWAIT_VOTE_START` 不等于现在就能开投。** 这条命令只可能在「本轮发言汇总」
+节点里跑，而那个节点是发言运行的末节点：念完稿子结束激活，开投是下一次（回灌）激活的事。
+所以它的 `next_action` 是「结束激活」，不是 `NEXT_ACTION["AWAIT_VOTE_START"]` 那句通用文案。
 
 **`label` 是念稿用的称呼**（`和事佬阿和（1号）`），每个人第一次出现都要用它。人类在副屏里
 投的是号码、在群里听到的是名字，中间那次映射不该由他来做。

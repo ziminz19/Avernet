@@ -131,6 +131,86 @@ fi
 ok "投票协作与第二轮（含出局者剔除）都满足契约"
 
 # --------------------------------------------------------------------------
+# 2026-08-30 第 2 轮的死锁：裁判在「本轮发言汇总」节点里跑了 open-vote。那个节点是
+# 发言运行的出口，运行要等这次激活结束才算完成、协作槽位才释放——于是它等槽位、
+# 槽位等它，重试和 sleep 只会把死锁钉死，一路卡到节点超时。当时有三处文案都在往这
+# 条路上推（节点指令、speeches-set 的 next_action、status 的 next_action），所以三处
+# 一起锁住，并和 tally 那条对称的纪律绑在同一个用例里。
+echo "== 末节点里不许开投（S2 和 S3 不能挤进同一次激活）"
+new_game collectguard "${FIVE_BOTS[@]}" --seed 31 >/dev/null
+uc render-speak-run --session "$SESSION" > "${TMP}/cg-speak.json"
+cg_speak="$(python3 -c "import json;print(json.load(open('${TMP}/cg-speak.json'))['yaml_path'])")"
+uc speeches-set --session "$SESSION" --json '{"1":"甲","2":"乙","3":"丙","4":"丁","5":"戊","6":"己"}' > "${TMP}/cg-sp.json"
+uc status --session "$SESSION" > "${TMP}/cg-status.json"
+uc render-vote-run --session "$SESSION" > "${TMP}/cg-vote.json"
+cg_vote="$(python3 -c "import json;print(json.load(open('${TMP}/cg-vote.json'))['yaml_path'])")"
+python3 - "$cg_speak" "$cg_vote" "${TMP}/cg-sp.json" "${TMP}/cg-status.json" <<'PY' || fail "末节点开投的护栏没了"
+import json, sys
+speak = open(sys.argv[1], encoding="utf-8").read()
+vote = open(sys.argv[2], encoding="utf-8").read()
+sp = json.load(open(sys.argv[3], encoding="utf-8"))
+st = json.load(open(sys.argv[4], encoding="utf-8"))
+
+collect = speak.split("      collect:", 1)[1]
+assert "不要开投" in collect, "collect 节点指令没写死「不要开投」"
+assert "open-vote" in collect, "collect 节点指令没点名 open-vote"
+assert "IN_COLLECT_NODE" in collect, "collect 节点指令没说清后果"
+assert "你这就开投" not in speak, "旧文案「你这就开投」还在，模型会照做"
+
+# 和 tally 那条纪律是同一条，要么都在，要么就是又改歪了一边
+tally = vote.split("      tally:", 1)[1]
+assert "不要派任何任务" in tally, "tally 节点的对称约束丢了"
+assert "不要提交任何运行" in tally, "tally 节点没禁止提交下一个运行"
+
+assert st["phase"] == "AWAIT_VOTE_START", st
+assert "结束激活" in sp["next_action"], sp["next_action"]
+assert "直接开投" not in sp["next_action"], "speeches-set 仍在祈使开投：%s" % sp["next_action"]
+assert "本轮发言汇总" in st["next_action"], "status 的 next_action 缺汇总节点的例外分支：%s" % st["next_action"]
+assert "结束激活" in st["next_action"], st["next_action"]
+PY
+ok "collect 节点与 speeches-set / status 的文案都不再把裁判推去开投"
+
+# 文案是第一道闸，这是第二道：万一模型还是在末节点里跑了 open-vote，脚本必须把它和
+# 「上一个运行刚收尾」的普通竞态区分开——普通竞态可以再等，这条自锁再等一万年也不会
+# 放行，报错必须换个码、并把「不要重试」说死。桩住 bcs-cli 让槽位永远不放行即可复现。
+echo "== 末节点里真去开投：必须报 IN_COLLECT_NODE，不是 RUN_SLOT_BUSY"
+new_game slotguard "${FIVE_BOTS[@]}" --seed 32 >/dev/null
+uc render-speak-run --session "$SESSION" >/dev/null
+uc speeches-set --session "$SESSION" --json '{"1":"甲","2":"乙","3":"丙","4":"丁","5":"戊","6":"己"}' >/dev/null
+mkdir -p "${TMP}/stub"
+cat > "${TMP}/stub/bcs-cli" <<'STUB'
+#!/usr/bin/env bash
+# 永远不放行，模拟发言运行还挂在那里的那一刻
+printf '%s\n' '{"allowed": false, "reason": "the current session already has an active state-machine run"}'
+STUB
+chmod +x "${TMP}/stub/bcs-cli"
+PATH="${TMP}/stub:$PATH" uc open-vote --session "$SESSION" > "${TMP}/sg.json" 2>&1
+python3 - "${TMP}/sg.json" <<'PY' || fail "末节点开投没有被单独识别成 IN_COLLECT_NODE"
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+assert d["ok"] is False, d
+assert d["error"] == "IN_COLLECT_NODE", "错误码应该和普通的槽位竞态区分开：%s" % d
+assert "不要重试" in d["message"], d["message"]
+assert "结束激活" in d["message"], d["message"]
+PY
+ok "末节点里开投被单独识别，并明说不要重试"
+
+# 另一半环：在开票节点里开下一轮是同一条死锁，报错也要单独认出来
+uc render-vote-run --session "$SESSION" >/dev/null
+uc votes-set --session "$SESSION" --json "$(python3 -c "
+import json
+print(json.dumps({str(s): '我投1号' if s != 1 else '我投2号' for s in range(1, 7)}, ensure_ascii=False))")" >/dev/null
+PATH="${TMP}/stub:$PATH" uc open-round --session "$SESSION" > "${TMP}/sg2.json" 2>&1
+python3 - "${TMP}/sg2.json" <<'PY' || fail "开票节点里开下一轮没有被单独识别成 IN_TALLY_NODE"
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+assert d["ok"] is False, d
+assert d["error"] == "IN_TALLY_NODE", "错误码应该和普通的槽位竞态区分开：%s" % d
+assert "不要重试" in d["message"], d["message"]
+PY
+ok "开票节点里开下一轮也被单独识别"
+
+# --------------------------------------------------------------------------
 echo "== 发言泄词遮蔽"
 new_game leak "${FIVE_BOTS[@]}" --seed 22 >/dev/null
 state="$(peek "$SESSION")"

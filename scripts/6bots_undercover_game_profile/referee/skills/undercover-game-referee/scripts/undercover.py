@@ -48,7 +48,7 @@ PHASES = (
 NEXT_ACTION = {
     "AWAIT_START": "开第一轮：先把人类自己的词念给他（init 返回的 human_word，或 my-word），再 open-round。",
     "SPEAK_RUNNING": "等发言协作把汇总节点派给你；拿到全部发言后调 speeches-set。",
-    "AWAIT_VOTE_START": "直接开投，不用等人类说话：跑 open-vote。",
+    "AWAIT_VOTE_START": "**如果这次激活是「本轮发言汇总」节点：念完汇总稿就结束激活，不要在那里开投。**你正占着协作槽位，在那个节点里跑 open-vote 一定失败，重试会卡死整局。其余情况（汇总稿的回灌、人类说话）：直接开投，不用等人类说话，跑 open-vote。",
     "VOTE_RUNNING": "等投票协作把计票节点派给你；计票节点上调 votes-set。运行超时未回就走卡住诊断。",
     "AWAIT_NEXT_ROUND": "等出局者的遗言回执；收到后 render-speak-run 开下一轮。",
     "FINISHED": "本局已经结束、真相也公布过了。只说一句「本局已结束，新建会话再来一局」，"
@@ -695,7 +695,12 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "   **每位玩家都要用返回里的 label 原样称呼（名字后面带号数），"
         "例如「阿和（1号）开头：「…」」。**人类在副屏里投的是号码，"
         "只报名字他就得自己去对照。\n"
-        "3. 结尾告诉人类：给他几秒看完，你这就开投——**不要再让他说一声**。\n"
+        "3. 结尾告诉人类：给他几秒看完，接下来他不用做任何事——**不要再让他说一声**。\n"
+        "**这个节点里只做上面这三件事。不要开投、不要调 open-vote、不要提交任何运行。**"
+        "你此刻就在这个发言运行的最后一个节点里：运行要等你这次激活结束才算完成，"
+        "协作槽位也才释放。在这里开投一定会被拒（IN_COLLECT_NODE），而重试、sleep、轮询都只会让"
+        "这次激活一直不结束——运行永远完不成，槽位永远不释放，整局就死在这里。"
+        "开投等这段稿子发出去、你被自己这条消息叫醒之后再做。\n"
         "只输出给玩家看的主持稿，不要输出任何词语、身份、内部状态、节点名或运行 ID。"
     )
     nodes.append(
@@ -841,7 +846,10 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
         "   返回里 tie 为真就是平票：本轮没有人出局，直接进下一轮，没有重投这回事。\n"
         "3. 如果事实层说本局结束，就在这里公布完整真相（先调 reveal）。\n"
         "**这个节点里只做这三件事。不要派任何任务、不要调 bcs_assign_task、"
-        "不要去查 bcs 的用法。**下一轮的唤醒源等这段稿子发出去之后再安排——"
+        "不要去查 bcs 的用法，也不要开下一轮、不要提交任何运行。**"
+        "你此刻就在这个投票运行的最后一个节点里：运行要等你这次激活结束才算完成，"
+        "协作槽位也才释放，在这里提交下一个运行只会把整局锁死。"
+        "下一轮的唤醒源等这段稿子发出去之后再安排——"
         "这条消息会把你自己叫醒一次，那次才是安排它的地方。\n"
         "只输出给玩家看的主持稿，不要输出任何未出局玩家的词语或身份、内部状态、节点名或运行 ID。"
     )
@@ -936,12 +944,15 @@ def last_json(text: str) -> dict[str, Any] | None:
     return found
 
 
-def require_run_slot(session_id: str) -> None:
+def require_run_slot(session_id: str, busy: tuple[str, str] | None = None) -> None:
     """一个 session 同时只能有一个自定义协作运行，只认服务端返回的 allowed。
 
     退避重试放在脚本里，不放在裁判身上：自动开投是被汇总稿的回灌唤醒的，那时发言
     运行可能刚收尾、槽位还没释放。让模型「等几秒再试一次」等于多烧一个来回，还会
     在群里多留一段无关文字。
+
+    退避扛的只是「上一个运行刚收尾」那几秒的竞态。扛不过去时故障就换了一种性质，
+    所以 `busy` 让调用方替换退避用尽之后的错误码和文案——见 SELF_LOCK。
     """
     reason: Any = None
     for attempt in range(RUN_SLOT_RETRIES):
@@ -954,11 +965,46 @@ def require_run_slot(session_id: str) -> None:
         reason = data.get("reason") or data.get("message") or code
         if attempt < RUN_SLOT_RETRIES - 1:
             time.sleep(RUN_SLOT_WAIT_S)
-    die(
+    err_code, tail = busy or (
         "RUN_SLOT_BUSY",
-        f"等了 {RUN_SLOT_RETRIES} 次服务端仍不放行，reason={reason}。"
         "上一个运行还活着，本次什么都没改。回一句还在等谁，结束激活。",
+    )
+    die(
+        err_code,
+        f"等了 {RUN_SLOT_RETRIES} 次服务端仍不放行，reason={reason}。" + tail,
         waited_seconds=RUN_SLOT_WAIT_S * (RUN_SLOT_RETRIES - 1),
+    )
+
+
+# 两个运行的末节点（collect / tally）都是裁判自己的，而运行要等那次激活结束才算完成、
+# 协作槽位才释放。裁判如果在末节点里就去提交下一个运行，就成了「它等槽位、槽位等它」：
+# 重试、sleep、轮询只会让那次激活一直不结束，运行永远完不成，整局死在那一步。
+# 2026-08-30 第 2 轮就是这样——collect 节点里跑了 open-vote，重试、sleep 10、sleep 20、
+# 轮询，一路到节点超时。退避扛的是「上一个运行刚收尾」那几秒的竞态；扛不过去时故障已经
+# 换了一种性质，所以换一个错误码，并把「不要重试」说死。
+SELF_LOCK = {
+    # phase: (错误码, 还没收尾的那个运行, 末节点名, 那个节点的稿子)
+    "AWAIT_VOTE_START": ("IN_COLLECT_NODE", "发言", "本轮发言汇总", "汇总稿"),
+    "AWAIT_NEXT_ROUND": ("IN_TALLY_NODE", "投票", "开票", "开票稿"),
+}
+
+
+def self_lock_hint(session_id: str, phase: str) -> tuple[str, str] | None:
+    """槽位被占且 phase 正停在末节点推出来的那个值时，替换 require_run_slot 的报错。"""
+    entry = SELF_LOCK.get(phase)
+    if entry is None or load_state(session_id)["phase"] != phase:
+        return None
+    err_code, run_name, node_name, board = entry
+    return (
+        err_code,
+        f"{run_name}运行还没收尾。**最可能的原因是你此刻就在它的最后一个节点"
+        f"（{node_name}）里**：那个运行要等你这次激活结束才算完成，槽位才会释放。"
+        "所以在那个节点里重试多少次、sleep 多久都不会成功，每试一次只是让这次激活"
+        f"更长、整局更卡。**立刻结束激活**，把{board}发出去——那条消息会把你叫醒一次，"
+        "下一步是那次激活的事。"
+        "如果你确定这次激活不是那个节点（比如是人类说「卡住了」把你叫醒的），"
+        f"那就是那个{run_name}运行已经死了、槽位还挂着：如实告诉人类还在等它判死，"
+        "结束激活，不要重试。",
     )
 
 
@@ -1310,10 +1356,14 @@ def cmd_speeches_set(args: argparse.Namespace) -> None:
             "phase": "AWAIT_VOTE_START",
             "round": state["round"],
             "speeches": results,
-            "next_action": NEXT_ACTION["AWAIT_VOTE_START"],
+            # 这条命令只可能在「本轮发言汇总」节点里跑，所以 next_action 不用
+            # NEXT_ACTION 的通用文案——那句「直接开投」在这个节点里是有害的。
+            "next_action": "念完汇总稿就**结束激活**。你此刻在发言运行的最后一个节点里、"
+            "占着协作槽位，在这里跑 open-vote 一定失败，重试会卡死整局。",
             "note": "只使用 text 字段念稿，永远不要使用原始文本。"
             "每位玩家用 label 原样称呼（名字带号数）。"
-            "念完不要再等人类说话，这段稿子发出去之后你会被自己这条消息叫醒一次，那次直接 open-vote。",
+            "念完不要再等人类说话——这段稿子发出去之后会把你自己叫醒一次，"
+            "**开投是那一次激活的事，不是这一次**。",
         }
     )
 
@@ -1752,7 +1802,10 @@ def cmd_open_round(args: argparse.Namespace) -> None:
     一个来回，入口节点就多等一个来回。所以提交必须是本次激活的最后一个动作，
     而最省事的保证办法就是让它和前面几步待在同一条命令里。
     """
-    require_run_slot(args.session)
+    # 开下一轮的正常入口是遗言回执那次激活；如果裁判在开票节点里就开下一轮，
+    # 和 collect 节点里开投是同一条死锁，见 SELF_LOCK。
+    busy = None if args.retry else self_lock_hint(args.session, "AWAIT_NEXT_ROUND")
+    require_run_slot(args.session, busy)
     payload = prepare_speak_run(args.session, args.retry)
     result = submit_run(args.session, payload["yaml_path"], payload["input_path"], payload["bindings"])
     emit(
@@ -1775,7 +1828,10 @@ def cmd_open_vote(args: argparse.Namespace) -> None:
     看门狗要在提交之后才知道派给谁，但派任务是工具调用、不占通道，可以放在提交
     之后做。真正不能放在提交之后的是「说话」——那由入口节点负责。
     """
-    require_run_slot(args.session)
+    # --retry 是卡住诊断在 VOTE_RUNNING 上重开，槽位被占就是「运行还活着」的正常
+    # 诊断结论；非 retry 的这条路上，槽位被占只可能是发言运行没收尾，见 SELF_LOCK。
+    busy = None if args.retry else self_lock_hint(args.session, "AWAIT_VOTE_START")
+    require_run_slot(args.session, busy)
     payload = prepare_vote_run(args.session, args.retry)
     result = submit_run(args.session, payload["yaml_path"], payload["input_path"], payload["bindings"])
     state = load_state(args.session)
