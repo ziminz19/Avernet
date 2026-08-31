@@ -62,6 +62,23 @@ SPEECH_MAX_CHARS = 25
 VOTE_MAX_CHARS = 10
 MASK = "○"
 
+# SELF_INJECT_NOTE：`bcs_assign_task` 不是免费的工具调用。
+#
+# 每派出一条任务，BCS 会立刻往裁判**自己**的会话里回灌一条 `[任务状态]`（裁判是
+# 这个主从群的 driver，账本状态只发给它）。那条回灌是直接改会话文件的，会打断裁判
+# 当时正在跑的那次激活。任务的**回执**到达时还会再回灌一条。
+#
+# 2026-08-31 那一局里，5 次激活被打断，4 次是裁判自己派单打断了自己（两次遗言、
+# 两次看门狗），第 5 次是看门狗回执打断了 `vote_open` 入口节点——那次整局就死在
+# 那里。协作节点的派发不会回灌，只有 `bcs_assign_task` 会。
+#
+# 由此有两条硬纪律，写进了 phase-machine.md 和 RULES.md：
+#   1. `bcs_assign_task` 必须是本次激活的最后一个工具调用；
+#   2. **派任务的那一刻，身后不能有节点在排队等裁判让路。** 提交过运行的那次激活
+#      里一律不派任务——回执随时会到，撞上入口节点就是整个运行失败。
+# 第 2 条把看门狗整个否掉了：它只能在开投提交之后派，而那时 `vote_open` 正排在
+# 后面。投票运行失败的兜底因此统一交给人类。
+
 # 节点超时与重试。
 #
 # Bot 的会话通道是串行的：同一时刻只跑一个激活，其余排队。通道偶尔会在一次激活
@@ -1680,50 +1697,6 @@ def cmd_mask(args: argparse.Namespace) -> None:
     )
 
 
-def cmd_render_vote_watchdog(args: argparse.Namespace) -> None:
-    """渲染一条不依赖人类的兜底唤醒任务。
-
-    投票运行失败时裁判不会被唤醒，唯一的兜底是人类主动喊「卡住了」。这条任务派给
-    一个**已出局**的 Bot：它在本轮投票运行里没有任何节点，通道整场空着，多这一条
-    消息不会和它自己的投票节点抢通道。它的回执会把裁判叫醒，裁判醒来先查 status
-    和 permission，发现运行已经失败就直接重开。
-
-    第一轮没有出局者，所以没有安全的看门狗人选——那一轮只能靠人类兜底，主持稿里
-    必须把时限说清楚。绝不退回给存活玩家：那等于故意在别人的通道里塞第二件事，
-    也正是入口节点不挑已出局玩家、把这条通道整个让出来的原因。
-    """
-    state = load_state(args.session)
-    require_phase(state, "VOTE_RUNNING")
-    emit(vote_watchdog(state))
-
-
-def vote_watchdog(state: dict[str, Any]) -> dict[str, Any]:
-    dead_bots = [
-        s for s in state["seats"] if s["kind"] == "bot" and not s["alive"] and s["bot_name"]
-    ]
-    if not dead_bots:
-        return {
-            "available": False,
-            "reason": "场上还没有出局的 Bot，这一轮没有安全的看门狗人选。",
-            "note": "不要改派给存活玩家。这一轮的兜底是人类：主持稿里说清超过 5 分钟没结果就回你一句。",
-        }
-    target = max(dead_bots, key=lambda s: (s["eliminated_round"] or 0, s["seat"]))
-    message = (
-        "【看门狗任务】\n"
-        f"第 {state['round']} 轮投票正在进行，你已经出局了，不参与投票。\n"
-        "请等大约三分钟，然后只回一句：看门狗回执。\n"
-        "不要说别的，不要提词语、身份、发言或任何推理。"
-    )
-    return {
-        "available": True,
-        "target_bot": target["bot_name"],
-        "player": target["display"],
-        "message": message,
-        "note": "用 bcs_assign_task 把 message 原样发给 target_bot。"
-        "收到「看门狗回执」时先查 status 和 collaborate permission：allowed 就说明投票运行已经失败，走卡住诊断重开。",
-    }
-
-
 def cmd_begin(args: argparse.Namespace) -> None:
     """开局前的全部探测一次做完：人类在不在、有哪些 Bot、我自己是谁、init 怎么写。
 
@@ -1823,10 +1796,16 @@ def cmd_open_round(args: argparse.Namespace) -> None:
 
 
 def cmd_open_vote(args: argparse.Namespace) -> None:
-    """开投：查槽位 → 渲染 → 提交 → 顺带把看门狗的任务文案备好。
+    """开投：查槽位 → 渲染 → 提交，到此为止。
 
-    看门狗要在提交之后才知道派给谁，但派任务是工具调用、不占通道，可以放在提交
-    之后做。真正不能放在提交之后的是「说话」——那由入口节点负责。
+    这条命令以前还会返回一个「看门狗」任务，让裁判在提交之后再 bcs_assign_task
+    派给一个已出局的 Bot 当闹钟。那是 2026-08-31 第 3 轮投票死掉的直接原因，
+    见 SELF_INJECT_NOTE：派任务和它的回执都会往裁判自己的会话里回灌一条
+    `[任务状态]`，而回灌会打断裁判当时正在跑的激活。开投这一步身后正排着
+    `vote_open` 入口节点，回执来得又不受控（实测 5 秒），撞上去就是整个运行失败。
+
+    所以提交之后一件事都不做。投票运行失败的兜底统一交给人类——开场白里说清
+    「超过 5 分钟没动静回我一句『卡住了』」，SX 能从 VOTE_RUNNING 重开。
     """
     # --retry 是卡住诊断在 VOTE_RUNNING 上重开，槽位被占就是「运行还活着」的正常
     # 诊断结论；非 retry 的这条路上，槽位被占只可能是发言运行没收尾，见 SELF_LOCK。
@@ -1834,7 +1813,6 @@ def cmd_open_vote(args: argparse.Namespace) -> None:
     require_run_slot(args.session, busy)
     payload = prepare_vote_run(args.session, args.retry)
     result = submit_run(args.session, payload["yaml_path"], payload["input_path"], payload["bindings"])
-    state = load_state(args.session)
     emit(
         {
             "phase": payload["phase"],
@@ -1842,9 +1820,9 @@ def cmd_open_vote(args: argparse.Namespace) -> None:
             "attempt": payload["attempt"],
             "submitted": True,
             "run_id": result.get("run_id") or (result.get("nodes") or [{}])[0].get("run_id"),
-            "watchdog": vote_watchdog(state),
-            "next_action": "开投稿由运行的入口节点产出，你不用说。只剩一件事：如果 watchdog.available "
-            "是 true，用 bcs_assign_task 把 watchdog.message 原样发给 watchdog.target_bot，然后结束激活。"
+            "next_action": "立刻结束激活。开投稿由运行的入口节点产出，你不用说；"
+            "**这次激活里一个工具调用都不要再加，尤其不要 bcs_assign_task**——"
+            "入口节点正排在你后面，任何派单的回灌都会打断它。"
             + ("" if payload["attempt"] <= 1 else " 这是本轮第 %d 次开投，要向人类说明之前的票作废。" % payload["attempt"]),
         },
         compact=True,
@@ -1968,16 +1946,13 @@ def main() -> None:
     p.add_argument("--retry", action="store_true", help="重开当前这一轮的发言运行。轮次不推进。")
     p.set_defaults(func=cmd_open_round)
 
-    p = with_session(sub.add_parser("open-vote", help="开投：查槽位、渲染、提交、备好看门狗"))
+    p = with_session(sub.add_parser("open-vote", help="开投：查槽位、渲染、提交"))
     p.add_argument("--retry", action="store_true", help="重开当前这一轮的投票运行。之前的票作废。")
     p.set_defaults(func=cmd_open_vote)
 
     with_session(sub.add_parser("render-ping", help="渲染遗言或预备任务")).set_defaults(
         func=cmd_render_ping
     )
-    with_session(
-        sub.add_parser("render-vote-watchdog", help="渲染投票期间的兜底唤醒任务")
-    ).set_defaults(func=cmd_render_vote_watchdog)
     with_session(sub.add_parser("reveal", help="终局公布真相")).set_defaults(func=cmd_reveal)
 
     p = with_session(sub.add_parser("speeches-set", help="提交本轮发言：检查、遮蔽、落盘"))

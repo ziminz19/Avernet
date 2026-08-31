@@ -47,7 +47,7 @@ GroupContext 里抄。
 | --- | --- | --- |
 | `begin` | 三条 `bcs session get \| jq` + 找自己 UUID | S0 |
 | `open-round` | `collaborate permission` + `render-speak-run` + `collaborate run` | S1 / S5 / SX |
-| `open-vote` | `collaborate permission` + `render-vote-run` + `collaborate run` + `render-vote-watchdog` | S3 / SX |
+| `open-vote` | `collaborate permission` + `render-vote-run` + `collaborate run` | S3 / SX |
 
 它们会自己调 `bcs-cli`（认证仍由 CLI 负责，脚本不碰 token）。下面的 `render-*` 是拆开的
 底层命令，只在复合命令因为环境问题跑不通时手工用。
@@ -56,7 +56,7 @@ GroupContext 里抄。
 
 | 命令 | 输出里有词吗 |
 | --- | --- |
-| `status` `speeches-set` `votes-set` `parse-vote` `render-ping` `render-vote-watchdog` `mask` | **没有**，可以放心引用 |
+| `status` `speeches-set` `votes-set` `parse-vote` `render-ping` `mask` | **没有**，可以放心引用 |
 | `init`（`human_word` 字段）`my-word` | 只有**人类玩家自己那个词**，只能说给他一个人听 |
 | `render-speak-run` `render-vote-run` | 只有文件路径，词在文件里，我不读也不贴 |
 | `reveal` | 有，且只有终局才能调 |
@@ -136,7 +136,7 @@ uc open-round --session S [--retry]
 uc open-vote --session S [--retry]
 ```
 
-同上，外加一个 `watchdog` 字段（内容同 `render-vote-watchdog`）。
+同上。
 
 槽位被占时脚本会自己退避重试三次（自动开投那一刻发言运行可能刚收尾），不用我在外面
 "等几秒再试一次"——每试一次都是一个来回。三次仍被占才报错，而错误码分两种：
@@ -146,9 +146,10 @@ uc open-vote --session S [--retry]
   是因为我把 S2 和 S3 挤进了同一次激活——我此刻就是那个运行的末节点，它等我结束、我等
   槽位。**立刻结束激活，一次都不要重试**，照返回的 `message` 办。
 
-提交完只剩一件事：
-`watchdog.available` 为真就用 `bcs_assign_task` 把 `watchdog.message` 发给
-`watchdog.target_bot`，然后结束激活。开投稿同样是入口节点的产物，不用我说。
+**提交完立刻结束激活，一个工具调用都不要再加。** 开投稿同样是入口节点的产物，不用我说。
+这里以前还要 `bcs_assign_task` 派一个看门狗，那条已经删了——`vote_open` 入口节点此刻正排在
+我后面，而派单和它的回执都会往我自己的会话里回灌一条 `[任务状态]`，回灌会打断正在跑的节点。
+见 [runs.md](runs.md#派任务会打断我自己)。
 
 ### `render-speak-run`
 
@@ -258,23 +259,6 @@ uc mask --session S --seat N --text "遗言原话" [--max-chars 35]
 
 发言和投票都走协作节点，我在人类看到之前就能遮蔽；**遗言不走节点，是公开的任务回执**，
 这条路上以前没有任何机器兜底。念遗言之前先跑这一条，只念返回的 `text`。
-
-### `render-vote-watchdog`
-
-```bash
-uc render-vote-watchdog --session S
-```
-
-只能在 `VOTE_RUNNING` 调；正常流程里由 `open-vote` 顺带返回，不用单独跑。
-渲染一条投票期间的兜底唤醒任务——投票运行失败不会唤醒我，
-这条回执是唯一不依赖人类的唤醒源。
-
-- `available: true` → 带 `target_bot` 和 `message`，用 `bcs_assign_task` 原样发过去。
-  目标一定是**已出局**的 Bot：它在本轮投票运行里没有任何节点，通道整场空着。
-- `available: false` → 第一轮还没人出局，没有安全人选。**绝不改派给存活玩家**，
-  那等于在别人的通道里塞第二件事，正是要避免的那个毛病。这一轮的兜底只能是人类。
-
-收到「看门狗回执」时不要当成普通迟到回执：走一遍 SX 卡住诊断。
 
 ### `reveal`
 
