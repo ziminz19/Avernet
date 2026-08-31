@@ -50,7 +50,10 @@ NEXT_ACTION = {
     "SPEAK_RUNNING": "等发言协作把汇总节点派给你；拿到全部发言后调 speeches-set。",
     "AWAIT_VOTE_START": "**如果这次激活是「本轮发言汇总」节点：念完汇总稿就结束激活，不要在那里开投。**你正占着协作槽位，在那个节点里跑 open-vote 一定失败，重试会卡死整局。其余情况（汇总稿的回灌、人类说话）：直接开投，不用等人类说话，跑 open-vote。",
     "VOTE_RUNNING": "等投票协作把计票节点派给你；计票节点上调 votes-set。运行超时未回就走卡住诊断。",
-    "AWAIT_NEXT_ROUND": "等出局者的遗言回执；收到后 render-speak-run 开下一轮。",
+    "AWAIT_NEXT_ROUND": "pending_ping 非空（有 Bot 出局，要念遗言）：派出遗言任务，"
+    "等它的回执把你叫醒，再 open-round。"
+    "pending_ping 为空（平票，或出局的是人类）：**不要派任何任务**，直接 open-round——"
+    "开票稿的回灌就是这一步的唤醒源，bcs_assign_task 会打断你自己这次激活。",
     "FINISHED": "本局已经结束、真相也公布过了。只说一句「本局已结束，新建会话再来一局」，"
     "**不要再 reveal、不要 bcs_task_complete、不要调任何脚本**。"
     "如果你是刚被一个新会话叫醒的，那说明 --session 传错了：新会话应该看到 NO_GAME。",
@@ -443,37 +446,38 @@ def bluntness_n(rnd: int) -> int:
     return BLUNTNESS_LADDER.get(rnd, BLUNTNESS_FLOOR)
 
 
+ANGLE_MENU = "什么时候会想到它 / 多久遇到一次 / 用完是什么感觉 / 一般放在哪儿 / 大概是什么样"
+
+
 def bluntness_block(rnd: int, first: bool) -> str:
-    """本轮的钝度要求，逐字写进每个发言节点的 instruction。"""
+    """本轮的钝度要求，逐字写进每个发言节点的 instruction。
+
+    这一段刻意写成**闭合式**：给一张固定的角度表让它挑一个，而不是让它自己去枚举
+    「这句话还能罩住哪些东西」。开放式自检（"念给局外人，他能列出至少 N 样吗"）要
+    求模型在开口之前先在心里造一批候选物再逐个比对——2026-08-31 那一局里，每个发
+    言节点从拿到 200 响应到吐出第一个字平均静默 35 秒（最长 76 秒），产出只有 20
+    来个字，那段静默就是这一步。闭合式给的是同一份钝度保证：一个角度 + 不出现类目
+    名词 + 不下定义，这句话必然同时罩得住一片东西，而模型不需要先把那一片列出来。
+    """
     n = bluntness_n(rnd)
-    lines = [
-        f"【本轮钝度 = {n}】",
-        f"写完先自检：把这句话原样念给一个没参加游戏的人，他能列出至少 {n} 样符合的东西吗？"
-        f"列不出来就是太具体了，重写得更钝。",
-    ]
+    lines = [f"【本轮钝度 = {n}】这句话得能同时套在至少 {n} 样别的东西上。"]
     if rnd == 1:
+        lines.append(f"照这个写：从「{ANGLE_MENU}」里挑**一个**角度，只说那一个。")
         lines.append(
-            "第一轮挑一个角度说就够了：什么时候会想到它 / 多久遇到一次 / 用完是什么感觉 / "
-            "一般放在哪儿 / 大概是什么样。"
-        )
-        lines.append(
-            "可以带上一个具体属性（形状、材质、大小、场合都行），但一句里只放一个，"
-            "而且不要把「用途」和「对象」塞进同一句——那等于给这个词下定义，第一轮不下定义。"
+            "可以带一个属性（形状 / 材质 / 大小 / 场合，四选一），但一句里只放一个，"
+            "而且「用途」和「对象」不能进同一句——那等于给这个词下定义。"
         )
     elif rnd == 2:
-        lines.append(
-            "这一轮可以再多给一点：一个属性加一个使用场合都行。"
-            "整句仍然不要等于这个词的定义。"
-        )
+        lines.append(f"照这个写：从「{ANGLE_MENU}」里挑一个角度，可以再加一个使用场合。")
+        lines.append("整句仍然不等于这个词的定义。")
     else:
         lines.append("这一轮可以说用途了，但整句仍然不能等价于这个词的定义。")
+    lines.append("不出现这个词所属类目的名词（不写「这种工具」「这类饮料」）。")
     if first:
-        lines.append("你是本轮第一个发言的人，没有参照，本轮的钝度由你定——宁可更钝。")
+        lines.append("你是本轮第一个发言的人，本轮的钝度由你定——宁可更钝。")
     else:
-        lines.append(
-            "先看前面的人到了什么钝度，你不能比他们更锐利。"
-            "换个角度可以，但要换成同样钝的角度，不要去补一个只有你的词才成立的角度。"
-        )
+        lines.append("前面的人到了什么钝度，对齐就行：不要更锐利，也不要去补他们没说到的角度。")
+    lines.append("按上面这条直接写出来，不要先在心里列一批候选再挑。")
     return "\n".join(lines)
 
 
@@ -580,14 +584,16 @@ def block(text: str, indent: int) -> str:
 
 
 def forbid_line(word: str) -> str:
-    chars = "、".join(f"「{ch}」" for ch in word)
-    parts = [f"不得说出「{word}」这个词本身"]
+    """字面泄词的红线。写成一行清单，让它照着看一眼就行——这是查表，不是让它把
+    自己写的句子逐字扫一遍。真正的兜底是 check_text：服务端逐字判定 + mask 遮蔽，
+    所以这里不需要把每种变体都展开成一段说明。"""
+    parts = [f"不得出现「{word}」"]
     grams = bigrams(word)
     if len(grams) > 1:
-        parts.append("不得说出其中连续的两个字（" + "、".join(f"「{g}」" for g in grams) + "）")
+        parts.append("不得出现" + "、".join(f"「{g}」" for g in grams))
     if len(word) > 1:
-        parts.append(f"也不得把 {chars} 拆散了说全")
-    parts.append("不得用拼音、英文、谐音或逐字暗示")
+        parts.append("也不得把它的字拆到一句里说全")
+    parts.append("不许拼音、英文、谐音")
     return "；".join(parts) + "。"
 
 
@@ -682,14 +688,14 @@ def render_speak_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
             )
         else:
             instruction = (
-                f"你是本局的 {s['seat']} 号玩家。你的词语是【{s['word']}】。\n"
-                f"现在是第 {rnd} 轮发言。[Upstream Outputs] 里第一条是主持人的开场，"
-                "其余是本轮在你之前已经发言的玩家原话；历史轮次的发言在 [Input] 里。\n"
-                f"请只输出一句话，不超过 {SPEECH_MAX_CHARS} 个字，描述你的词语。\n"
+                f"你是 {s['seat']} 号，你的词是【{s['word']}】。第 {rnd} 轮发言。\n"
+                "[Upstream Outputs]：第一条是主持人开场，其余是本轮排在你前面的人的原话。"
+                "[Input]：历史轮次的发言。\n"
+                f"输出一句话，不超过 {SPEECH_MAX_CHARS} 字，描述你的词。\n"
                 f"{forbid_line(s['word'])}\n\n"
                 f"{bluntness_block(rnd, first)}\n\n"
-                "不要提身份、轮次、规则或票数，也不要点评其他玩家。\n"
-                "只输出这一句话本身，不要编号、不要引号、不要 JSON、不要任何解释。"
+                "不提身份、轮次、规则、票数，不点评别人。\n"
+                "只输出这句话：没有编号、引号、JSON、前缀、解释。"
             )
             nodes.append(
                 f"      {nid}:\n"
@@ -821,19 +827,23 @@ def render_vote_yaml(state: dict[str, Any]) -> tuple[str, list[str]]:
                 f"            targets: [tally]"
             )
         else:
+            # 「为什么不写理由」那段论证不在这里写：玩家 profile 的 SKILL.md 里已经
+            # 有一份完整的，节点里再来一遍等于让模型每投一票都把它重读重认一次。
+            # 这里只留一条**闭合的**挑人规则——开放式的「读完所有人所有轮次再自
+            # 己想」是投票节点吐 4 个字要花 20-70 秒的原因。
             instruction = (
-                f"你是本局的 {s['seat']} 号玩家。你的词语是【{s['word']}】。\n"
-                f"现在是第 {rnd} 轮投票。全场玩家是：{seat_list}。\n"
-                f"[Input] 里是所有人**全部历史轮次**的发言原话，逐字可查——"
-                "这是你唯一的判断依据。[Upstream Outputs] 里只有主持人的开场，不含任何信息。\n"
-                f"可以投的人：{others}。不能投自己。\n\n"
-                "在心里想清楚投谁，但**只输出票号本身**：「我投N号」，N 是阿拉伯数字。\n"
-                "不写理由、不引用别人的话、不解释、不加任何前缀。整条不超过 "
-                f"{VOTE_MAX_CHARS} 个字。\n"
-                "理由是泄露渠道：说「跟我理解的不一样」就等于把自己那个词的一个属性"
-                "广播给全场。所以这一轮谁都不写理由。\n"
-                "确实无法判断时，只输出「我弃权」。\n"
-                f"任何情况下都不得在输出里出现「{s['word']}」或它的任何一部分。"
+                f"你是 {s['seat']} 号，你的词是【{s['word']}】。第 {rnd} 轮投票。"
+                f"全场：{seat_list}。\n"
+                f"[Input] 是所有人历轮发言的原话，这是唯一依据。"
+                "[Upstream Outputs] 只有主持人开场，不含信息。\n"
+                f"可以投：{others}。不能投自己。\n\n"
+                "按这两条挑一个人，命中哪条投哪个：\n"
+                "① 哪句话和你的词最对不上；② 谁前后两轮自相矛盾。\n"
+                "话少、风格不同、这轮说得钝，都不算——钝是规则要求的。\n\n"
+                "只输出票号：「我投N号」，N 是阿拉伯数字，整条不超过 "
+                f"{VOTE_MAX_CHARS} 字。不写理由、不解释、不加前缀。\n"
+                "两条都命中不了就只输出「我弃权」。\n"
+                f"输出里不得出现「{s['word']}」或它的任何一部分。"
             )
             # 入口节点归了裁判，玩家的投票节点不再和任何东西抢通道，走默认超时。
             nodes.append(
@@ -1218,7 +1228,12 @@ def cmd_status(args: argparse.Namespace) -> None:
         "phase": state["phase"],
         "round": f"{state['round']}/{state['config']['max_rounds']}",
         "alive": [f"{s['seat']}号{s['display']}" for s in alive_seats(state)],
-        "pending_ping": (ping or {}).get("bot_name"),
+        # 只有「有 Bot 出局、要念遗言」才报出来。平票那种为了叫醒裁判而派的
+        # 「预备任务」已经不派了：它是一次完整的 bot 激活加两次裁判激活，换回来
+        # 的只是一句「我准备好了」，而每一次 bcs_assign_task 都会让 BCS 往裁判自
+        # 己的会话里灌一条 [任务状态]，那条灌入会打断裁判当时正在跑的激活。
+        # 平票那一轮改成：开票稿回灌把裁判叫醒，它直接 open-round。
+        "pending_ping": (ping or {}).get("bot_name") if (ping or {}).get("kind") == "eulogy" else None,
         "next_action": NEXT_ACTION.get(state["phase"], "先跑 status"),
     }
     if state["phase"] == "FINISHED":
@@ -1434,7 +1449,12 @@ def cmd_render_vote_run(args: argparse.Namespace) -> None:
 
 
 def choose_ping(state: dict[str, Any], eliminated_seat: int | None) -> dict[str, Any] | None:
-    """选一个能把裁判叫醒去开下一轮的人。出局者优先（遗言），否则找下一轮首发。"""
+    """选一个能把裁判叫醒去开下一轮的人。出局者优先（遗言），否则找下一轮首发。
+
+    只有 kind == "eulogy" 会真的被派出去。standby（平票那种「预备任务」）仍然渲染，
+    但 status 不再把它报给裁判——那一轮的唤醒源改用开票稿的回灌，裁判在那一拍直接
+    open-round。理由见 cmd_status 里 pending_ping 那段注释。
+    """
     if eliminated_seat is not None:
         s = seat_of(state, eliminated_seat)
         if s["kind"] == "bot":
@@ -1578,7 +1598,9 @@ def cmd_votes_set(args: argparse.Namespace) -> None:
             "note": "只使用 text 字段念稿——它已经规范化成票号，玩家的原话不会给你。"
             "每位玩家用 label / target_label 原样称呼（名字带号数）。"
             "不要替玩家编造或猜测投票理由。出局者身份不要公布，除非 verdict 是 finished。"
-            "tie 为真就是本轮无人出局、直接进下一轮，没有重投这回事。",
+            "tie 为真就是本轮无人出局、直接进下一轮，没有重投这回事。"
+            "ping 为空、或它的 kind 是 standby 时，**这一轮不派任何任务**："
+            "开票稿会把你自己叫醒一次，那一拍直接 open-round。",
         }
     )
 
